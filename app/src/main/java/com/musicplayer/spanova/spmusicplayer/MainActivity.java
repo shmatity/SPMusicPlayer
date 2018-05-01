@@ -1,5 +1,8 @@
 package com.musicplayer.spanova.spmusicplayer;
+
 import android.Manifest;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.provider.MediaStore;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -18,8 +21,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,13 +31,13 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int RUNTIME_PERMISSION_CODE = 7;
 
-    String[] ListElements = new String[] { };
+    Song[] ListElements = new Song[]{};
 
     ListView listView;
 
-    List<String> ListElementsArrayList ;
+    List<Song> ListElementsArrayList;
 
-    ArrayAdapter<String> adapter ;
+    ArrayAdapter<Song> adapter;
 
     ContentResolver contentResolver;
 
@@ -50,42 +53,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-
-        listView = (ListView) findViewById(R.id.listView1);
-
-        button = (Button)findViewById(R.id.button);
-
         context = getApplicationContext();
 
-        ListElementsArrayList = new ArrayList<>(Arrays.asList(ListElements));
-
-        adapter = new ArrayAdapter<String>
-                (MainActivity.this, android.R.layout.simple_list_item_1, ListElementsArrayList);
-
-        // Requesting run time permission for Read External Storage.
         AndroidRuntimePermission();
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        ListElementsArrayList = GetAllMediaMp3Files();
+        listView = (ListView) findViewById(R.id.listView1);
+        SongAdapter adapter = new SongAdapter(MainActivity.this, ListElementsArrayList);
 
-                GetAllMediaMp3Files();
 
-                listView.setAdapter(adapter);
-
-            }
-        });
+        listView.setAdapter(adapter);
 
         // ListView on item selected listener.
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                // TODO Auto-generated method stub
-                // Showing ListView Item Click Value using Toast.
+                Song current = ListElementsArrayList.get(position);
+                Uri myUri = null; // initialize Uri here
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//                mediaPlayer.setDataSource(getApplicationContext(), myUri);
+//                mediaPlayer.prepare();
+                mediaPlayer.start();
 
-                Toast.makeText(MainActivity.this,parent.getAdapter().getItem(position).toString(),Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, parent.getAdapter().getItem(position).toString(), Toast.LENGTH_LONG).show();
 
             }
         });
@@ -93,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void GetAllMediaMp3Files(){
-
+    public List<Song> GetAllMediaMp3Files() {
+        List<Song> result = new ArrayList<Song>();
         contentResolver = context.getContentResolver();
 
         uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -109,16 +101,20 @@ public class MainActivity extends AppCompatActivity {
 
         if (cursor == null) {
 
-            Toast.makeText(MainActivity.this,"Something Went Wrong.", Toast.LENGTH_LONG);
+            Toast.makeText(MainActivity.this, "Something Went Wrong.", Toast.LENGTH_LONG);
 
         } else if (!cursor.moveToFirst()) {
 
-            Toast.makeText(MainActivity.this,"No Music Found on SD Card.", Toast.LENGTH_LONG);
+            Toast.makeText(MainActivity.this, "No Music Found on SD Card.", Toast.LENGTH_LONG);
 
-        }
-        else {
+        } else {
 
+            int title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+            int artist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+            int album = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+            int year = cursor.getColumnIndex(MediaStore.Audio.Media.YEAR);
             int Title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+            int uri = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
 
             //Getting Song ID From Cursor.
             //int id = cursor.getColumnIndex(MediaStore.Audio.Media._ID);
@@ -128,23 +124,29 @@ public class MainActivity extends AppCompatActivity {
                 // You can also get the Song ID using cursor.getLong(id).
                 //long SongID = cursor.getLong(id);
 
-                String SongTitle = cursor.getString(Title);
+                String songTitle = cursor.getString(title);
+                String songArtist = cursor.getString(artist);
+                String songAlbum = cursor.getString(album);
+                String songYesr = cursor.getString(year);
+                String songUri = cursor.getString(uri);
 
                 // Adding Media File Names to ListElementsArrayList.
-                ListElementsArrayList.add(SongTitle);
+                Song current = new Song(songTitle, songArtist, songUri);
+                result.add(current);
 
             } while (cursor.moveToNext());
         }
+        return result;
     }
 
     // Creating Runtime permission function.
-    public void AndroidRuntimePermission(){
+    public void AndroidRuntimePermission() {
 
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
-                if(shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)){
+                if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
                     AlertDialog.Builder alert_builder = new AlertDialog.Builder(MainActivity.this);
                     alert_builder.setMessage("External Storage Permission is Required.");
@@ -163,14 +165,13 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
-                    alert_builder.setNeutralButton("Cancel",null);
+                    alert_builder.setNeutralButton("Cancel", null);
 
                     AlertDialog dialog = alert_builder.create();
 
                     dialog.show();
 
-                }
-                else {
+                } else {
 
                     ActivityCompat.requestPermissions(
                             MainActivity.this,
@@ -178,23 +179,22 @@ public class MainActivity extends AppCompatActivity {
                             RUNTIME_PERMISSION_CODE
                     );
                 }
-            }else {
+            } else {
 
             }
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
-        switch(requestCode){
+        switch (requestCode) {
 
-            case RUNTIME_PERMISSION_CODE:{
+            case RUNTIME_PERMISSION_CODE: {
 
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                }
-                else {
+                } else {
 
                 }
             }
