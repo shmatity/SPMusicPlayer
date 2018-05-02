@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">SP Music Player</string>
+    <string name="songs">Songs</string>
+    <string name="artists">Artists</string>
+    <string name="albums">Albums</string>
+    <string name="title_notifications">Notifications</string>
+
 </resources>

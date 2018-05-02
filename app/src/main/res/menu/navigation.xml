@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/navigation_songs"
+        android:icon="@android:drawable/ic_menu_sort_alphabetically"
+        android:title="@string/songs" />
+
+    <item
+        android:id="@+id/navigation_dashboard"
+        android:icon="@android:drawable/ic_menu_today"
+        android:title="@string/artists" />
+
+    <item
+        android:id="@+id/navigation_notifications"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/albums" />
+
+</menu>

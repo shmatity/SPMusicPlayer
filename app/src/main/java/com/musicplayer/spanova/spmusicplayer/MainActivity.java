@@ -1,142 +1,59 @@
 package com.musicplayer.spanova.spmusicplayer;
 
 import android.Manifest;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.provider.MediaStore;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.net.Uri;
-import android.os.Build;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.database.Cursor;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
+    private TextView mTextMessage;
+    public static final int RUNTIME_PERMISSION_CODE = 7;
     Context context;
 
-    public static final int RUNTIME_PERMISSION_CODE = 7;
 
-    Song[] ListElements = new Song[]{};
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
-    ListView listView;
-
-    List<Song> ListElementsArrayList;
-
-    ArrayAdapter<Song> adapter;
-
-    ContentResolver contentResolver;
-
-    Cursor cursor;
-
-    Uri uri;
-
-    Button button;
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_songs:
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.sp_music_player, new SongsFragment());
+                    ft.commit();
+                case R.id.navigation_home:
+                    return true;
+                case R.id.navigation_dashboard:
+                    return true;
+                case R.id.navigation_notifications:
+                    return true;
+            }
+            return false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
+
+        mTextMessage = (TextView) findViewById(R.id.message);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         context = getApplicationContext();
 
         AndroidRuntimePermission();
-
-        ListElementsArrayList = GetAllMediaMp3Files();
-        listView = (ListView) findViewById(R.id.listView1);
-        SongAdapter adapter = new SongAdapter(MainActivity.this, ListElementsArrayList);
-
-
-        listView.setAdapter(adapter);
-
-        // ListView on item selected listener.
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Song current = ListElementsArrayList.get(position);
-                Uri myUri = null; // initialize Uri here
-                MediaPlayer mediaPlayer = new MediaPlayer();
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//                mediaPlayer.setDataSource(getApplicationContext(), myUri);
-//                mediaPlayer.prepare();
-                mediaPlayer.start();
-
-                Toast.makeText(MainActivity.this, parent.getAdapter().getItem(position).toString(), Toast.LENGTH_LONG).show();
-
-            }
-        });
-
-    }
-
-
-    public List<Song> GetAllMediaMp3Files() {
-        List<Song> result = new ArrayList<Song>();
-        contentResolver = context.getContentResolver();
-
-        uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-
-        cursor = contentResolver.query(
-                uri, // Uri
-                null,
-                null,
-                null,
-                null
-        );
-
-        if (cursor == null) {
-
-            Toast.makeText(MainActivity.this, "Something Went Wrong.", Toast.LENGTH_LONG);
-
-        } else if (!cursor.moveToFirst()) {
-
-            Toast.makeText(MainActivity.this, "No Music Found on SD Card.", Toast.LENGTH_LONG);
-
-        } else {
-
-            int title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            int artist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int album = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
-            int year = cursor.getColumnIndex(MediaStore.Audio.Media.YEAR);
-            int Title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            int uri = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-
-            //Getting Song ID From Cursor.
-            //int id = cursor.getColumnIndex(MediaStore.Audio.Media._ID);
-
-            do {
-
-                // You can also get the Song ID using cursor.getLong(id).
-                //long SongID = cursor.getLong(id);
-
-                String songTitle = cursor.getString(title);
-                String songArtist = cursor.getString(artist);
-                String songAlbum = cursor.getString(album);
-                String songYesr = cursor.getString(year);
-                String songUri = cursor.getString(uri);
-
-                // Adding Media File Names to ListElementsArrayList.
-                Song current = new Song(songTitle, songArtist, songUri);
-                result.add(current);
-
-            } while (cursor.moveToNext());
-        }
-        return result;
     }
 
     // Creating Runtime permission function.
@@ -144,9 +61,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
-                if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                if (shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
                     AlertDialog.Builder alert_builder = new AlertDialog.Builder(MainActivity.this);
                     alert_builder.setMessage("External Storage Permission is Required.");
@@ -158,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
                             ActivityCompat.requestPermissions(
                                     MainActivity.this,
-                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                    new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
                                     RUNTIME_PERMISSION_CODE
 
                             );
@@ -200,4 +117,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 }
