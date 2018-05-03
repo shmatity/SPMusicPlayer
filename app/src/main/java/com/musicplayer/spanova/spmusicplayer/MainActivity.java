@@ -27,16 +27,19 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             switch (item.getItemId()) {
                 case R.id.navigation_songs:
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    ft.replace(R.id.sp_music_player, new SongsFragment());
+                    ft.replace(R.id.songs_fragment_view, new SongsFragment());
                     ft.commit();
-                case R.id.navigation_home:
                     return true;
                 case R.id.navigation_dashboard:
+                    ft.replace(R.id.songs_fragment_view, new ArtistFragment());
+                    ft.commit();
                     return true;
                 case R.id.navigation_notifications:
+                    ft.replace(R.id.songs_fragment_view, new AlbumFragment());
+                    ft.commit();
                     return true;
             }
             return false;
@@ -54,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext();
 
         AndroidRuntimePermission();
+
+        ((BottomNavigationView) findViewById(R.id.navigation)).setSelectedItemId(R.id.navigation_songs);
+
+
     }
 
     // Creating Runtime permission function.
