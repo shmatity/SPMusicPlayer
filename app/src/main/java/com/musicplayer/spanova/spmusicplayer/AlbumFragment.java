@@ -50,7 +50,7 @@ public class AlbumFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         // Defines the xml file for the fragment
-        return inflater.inflate(R.layout.fragment_songs, parent, false);
+        return inflater.inflate(R.layout.fragment_album, parent, false);
     }
 
     // This event is triggered soon after onCreateView().

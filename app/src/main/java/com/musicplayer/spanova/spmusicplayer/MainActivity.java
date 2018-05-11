@@ -4,9 +4,11 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -20,8 +22,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
     public static final int RUNTIME_PERMISSION_CODE = 7;
     Context context;
-
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -30,15 +30,15 @@ public class MainActivity extends AppCompatActivity {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             switch (item.getItemId()) {
                 case R.id.navigation_songs:
-                    ft.replace(R.id.songs_fragment_view, new SongsFragment());
+                    ft.replace(R.id.fragment_view, new SongsFragment());
                     ft.commit();
                     return true;
-                case R.id.navigation_dashboard:
-                    ft.replace(R.id.songs_fragment_view, new ArtistFragment());
+                case R.id.navigation_artist:
+                    ft.replace(R.id.fragment_view, new ArtistFragment());
                     ft.commit();
                     return true;
-                case R.id.navigation_notifications:
-                    ft.replace(R.id.songs_fragment_view, new AlbumFragment());
+                case R.id.navigation_album:
+                    ft.replace(R.id.fragment_view, new AlbumFragment());
                     ft.commit();
                     return true;
             }
@@ -55,12 +55,8 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         context = getApplicationContext();
-
         AndroidRuntimePermission();
-
         ((BottomNavigationView) findViewById(R.id.navigation)).setSelectedItemId(R.id.navigation_songs);
-
-
     }
 
     // Creating Runtime permission function.

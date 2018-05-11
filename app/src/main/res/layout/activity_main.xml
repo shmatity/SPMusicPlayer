@@ -13,11 +13,16 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="0dp"
         android:layout_marginStart="0dp"
+        android:layout_weight="0"
+        android:gravity="top"
+        android:padding="1dp"
         app:menu="@menu/navigation" />
 
     <FrameLayout
-        android:id="@+id/songs_fragment_view"
+        android:id="@+id/fragment_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></FrameLayout>
+        android:layout_below="@+id/navigation"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"></FrameLayout>
 
 </RelativeLayout>

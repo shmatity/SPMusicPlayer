@@ -50,7 +50,7 @@ public class ArtistFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         // Defines the xml file for the fragment
-        return inflater.inflate(R.layout.fragment_songs, parent, false);
+        return inflater.inflate(R.layout.fragment_artist, parent, false);
     }
 
     // This event is triggered soon after onCreateView().
@@ -90,7 +90,7 @@ public class ArtistFragment extends Fragment {
         List<Song> result = new ArrayList<Song>();
         contentResolver = activity.getContentResolver();
 
-        artist = MediaStore.Audio.Media.ARTIST;
+        uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
         cursor = contentResolver.query(
                 uri, // Uri

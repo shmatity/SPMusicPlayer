@@ -10,12 +10,12 @@
         android:title="@string/songs" />
 
     <item
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_artist"
         android:icon="@android:drawable/ic_menu_today"
         android:title="@string/artists" />
 
     <item
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_album"
         android:icon="@android:drawable/ic_menu_save"
         android:title="@string/albums" />
 
