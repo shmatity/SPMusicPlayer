@@ -4,5 +4,6 @@
     <string name="artists">Artists</string>
     <string name="albums">Albums</string>
     <string name="title_notifications">Notifications</string>
+    <string name="more">More</string>
 
 </resources>

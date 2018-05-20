@@ -9,11 +9,13 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
 import android.util.Log;
+import android.widget.MediaController;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener {
+        MediaPlayer.OnCompletionListener, MediaController.MediaPlayerControl {
 
+    private MediaController mediaController;
     private MediaPlayer player;
     private Uri uri;
     private final IBinder musicBind = new MusicBinder();
@@ -61,6 +63,10 @@ public class MusicService extends Service implements
 
     public void initMusicPlayer(){
         player = new MediaPlayer();
+        mediaController = new MediaController(this);
+        mediaController.setMediaPlayer(this);
+        mediaController.setAnchorView(mediaController.findViewById(R.id.test));
+        mediaController.setEnabled(true);
         player.setWakeMode(getApplicationContext(),
                 PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -75,6 +81,7 @@ public class MusicService extends Service implements
 
     public void playSong() {
         try {
+            mediaController.show();
             player.reset();
             player.setDataSource(getApplicationContext(), uri);
             player.prepareAsync();
@@ -82,6 +89,61 @@ public class MusicService extends Service implements
         catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
+    }
+
+    @Override
+    public void start() {
+        player.start();
+    }
+
+    @Override
+    public void pause() {
+        player.pause();
+    }
+
+    @Override
+    public int getDuration() {
+        return 0;
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        return 0;
+    }
+
+    @Override
+    public void seekTo(int pos) {
+
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return player.isPlaying();
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    @Override
+    public boolean canPause() {
+        return false;
+    }
+
+    @Override
+    public boolean canSeekBackward() {
+        return false;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return false;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
     }
 
     public class MusicBinder extends Binder {
