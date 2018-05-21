@@ -1,9 +1,8 @@
-package com.musicplayer.spanova.spmusicplayer;
+package com.musicplayer.spanova.spmusicplayer.album;
 
 
 import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -20,17 +19,20 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.IOException;
+import com.musicplayer.spanova.spmusicplayer.R;
+import com.musicplayer.spanova.spmusicplayer.song.Song;
+import com.musicplayer.spanova.spmusicplayer.song.SongAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
-
-public class SongsFragment extends Fragment {
+public class AlbumFragment extends Fragment {
 
 
     Activity activity;
+
+
 
     Song[] ListElements = new Song[]{};
 
@@ -47,12 +49,16 @@ public class SongsFragment extends Fragment {
     Uri uri;
 
     Button button;
-
+    // The onCreateView method is called when Fragment should create its View object hierarchy,
+    // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_songs, parent, false);
+        // Defines the xml file for the fragment
+        return inflater.inflate(R.layout.fragment_album, parent, false);
     }
 
+    // This event is triggered soon after onCreateView().
+    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         activity = this.getActivity();
@@ -62,37 +68,21 @@ public class SongsFragment extends Fragment {
 
 
         listView.setAdapter(adapter);
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                return false;
-            }
-        });
+
+        // ListView on item selected listener.
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-            Song current = ListElementsArrayList.get(position);
+                Song current = ListElementsArrayList.get(position);
+                Uri myUri = Uri.parse(current.getUri());
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//                mediaPlayer.setDataSource(getApplicationContext(), myUri);
+//                mediaPlayer.prepare();
+                mediaPlayer.start();
 
-            Intent intent = new Intent(activity, MusicPlayerActivity.class);
-            intent.putExtra("uri", current.uri);
-            startActivity(intent);
-
-
-//        if (mediaPlayer != null) mediaPlayer.release();
-//
-//        mediaPlayer = new MediaPlayer();
-//        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-//
-//        try {
-//            Uri myUri = Uri.parse(uri);
-//            mediaPlayer.setDataSource(context, myUri);
-//            mediaPlayer.prepare();
-//            mediaPlayer.start();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+                Toast.makeText(activity, parent.getAdapter().getItem(position).toString(), Toast.LENGTH_LONG).show();
 
             }
         });
@@ -135,12 +125,17 @@ public class SongsFragment extends Fragment {
             //int id = cursor.getColumnIndex(MediaStore.Audio.Media._ID);
 
             do {
+
+                // You can also get the Song ID using cursor.getLong(id).
+                //long SongID = cursor.getLong(id);
+
                 String songTitle = cursor.getString(title);
                 String songArtist = cursor.getString(artist);
                 String songAlbum = cursor.getString(album);
                 String songYesr = cursor.getString(year);
                 String songUri = cursor.getString(uri);
 
+                // Adding Media File Names to ListElementsArrayList.
                 Song current = new Song(songTitle, songArtist, songUri);
                 result.add(current);
 

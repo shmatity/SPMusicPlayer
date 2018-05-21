@@ -13,12 +13,16 @@ import android.widget.MediaController;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener, MediaController.MediaPlayerControl {
+        MediaPlayer.OnCompletionListener {
 
-    private MediaController mediaController;
+
     private MediaPlayer player;
     private Uri uri;
     private final IBinder musicBind = new MusicBinder();
+
+    public MediaPlayer getPlayer() {
+        return player;
+    }
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -54,19 +58,10 @@ public class MusicService extends Service implements
         initMusicPlayer();
     }
 
-    public void onDestroy(){
-        super.onDestroy();
-        player.stop();
-        player.release();
-        player = null;
-    }
-
     public void initMusicPlayer(){
         player = new MediaPlayer();
-        mediaController = new MediaController(this);
-        mediaController.setMediaPlayer(this);
-        mediaController.setAnchorView(mediaController.findViewById(R.id.test));
-        mediaController.setEnabled(true);
+
+
         player.setWakeMode(getApplicationContext(),
                 PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -75,13 +70,19 @@ public class MusicService extends Service implements
         player.setOnErrorListener(this);
     }
 
+    public void onDestroy(){
+        super.onDestroy();
+        player.stop();
+        player.release();
+        player = null;
+    }
+
     public void setUri(String uri) {
         this.uri = Uri.parse(uri);
     }
 
     public void playSong() {
         try {
-            mediaController.show();
             player.reset();
             player.setDataSource(getApplicationContext(), uri);
             player.prepareAsync();
@@ -91,60 +92,7 @@ public class MusicService extends Service implements
         }
     }
 
-    @Override
-    public void start() {
-        player.start();
-    }
 
-    @Override
-    public void pause() {
-        player.pause();
-    }
-
-    @Override
-    public int getDuration() {
-        return 0;
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        return 0;
-    }
-
-    @Override
-    public void seekTo(int pos) {
-
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return player.isPlaying();
-    }
-
-    @Override
-    public int getBufferPercentage() {
-        return 0;
-    }
-
-    @Override
-    public boolean canPause() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekBackward() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return false;
-    }
-
-    @Override
-    public int getAudioSessionId() {
-        return 0;
-    }
 
     public class MusicBinder extends Binder {
         MusicService getService() {

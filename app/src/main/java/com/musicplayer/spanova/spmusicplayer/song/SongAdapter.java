@@ -1,17 +1,18 @@
-package com.musicplayer.spanova.spmusicplayer;
+package com.musicplayer.spanova.spmusicplayer.song;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.musicplayer.spanova.spmusicplayer.R;
+import com.musicplayer.spanova.spmusicplayer.song.Song;
 
 import java.util.List;
 
-class SongAdapter extends BaseAdapter {
+public class SongAdapter extends BaseAdapter {
 
     Context context;
     List<Song> songs;

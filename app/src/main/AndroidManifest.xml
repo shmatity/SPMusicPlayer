@@ -16,8 +16,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MusicPlayerActivity" >
-        </activity>
+        <activity android:name=".MusicPlayerActivity"></activity>
+        <activity android:name=".notification.NotificationHelperActivity"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"></activity>
         <service android:name=".MusicService" />
     </application>
 

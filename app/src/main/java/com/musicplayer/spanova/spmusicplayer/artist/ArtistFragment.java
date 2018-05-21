@@ -1,4 +1,4 @@
-package com.musicplayer.spanova.spmusicplayer;
+package com.musicplayer.spanova.spmusicplayer.artist;
 
 
 import android.app.Activity;
@@ -19,11 +19,15 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.musicplayer.spanova.spmusicplayer.R;
+import com.musicplayer.spanova.spmusicplayer.song.Song;
+import com.musicplayer.spanova.spmusicplayer.song.SongAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class AlbumFragment extends Fragment {
+public class ArtistFragment extends Fragment {
 
 
     Activity activity;
@@ -50,7 +54,7 @@ public class AlbumFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         // Defines the xml file for the fragment
-        return inflater.inflate(R.layout.fragment_album, parent, false);
+        return inflater.inflate(R.layout.fragment_artist, parent, false);
     }
 
     // This event is triggered soon after onCreateView().
@@ -71,7 +75,7 @@ public class AlbumFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Song current = ListElementsArrayList.get(position);
-                Uri myUri = Uri.parse(current.uri);
+                Uri myUri = Uri.parse(current.getUri());
                 MediaPlayer mediaPlayer = new MediaPlayer();
                 mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 //                mediaPlayer.setDataSource(getApplicationContext(), myUri);
