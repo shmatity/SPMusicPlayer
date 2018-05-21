@@ -28,8 +28,6 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
     Context context;
     Song song;
 
-
-
     private ServiceConnection musicConnection = new ServiceConnection() {
 
         @Override
@@ -55,6 +53,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
 
     public void showNotification(){
         new CustomNotification(context,
+                this,
                 song.getArtist(),
                 song.getTitle(),
                 R.drawable.ic_format_list_bulleted_black_24dp,

@@ -1,6 +1,5 @@
 package com.musicplayer.spanova.spmusicplayer.song;
 
-
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -30,9 +29,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class SongsFragment extends Fragment {
-
 
     Activity activity;
 
@@ -64,7 +61,6 @@ public class SongsFragment extends Fragment {
         listView = (ListView) getView().findViewById(R.id.listView1);
         SongAdapter adapter = new SongAdapter(activity, ListElementsArrayList);
 
-
         listView.setAdapter(adapter);
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -75,29 +71,10 @@ public class SongsFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
             Song current = ListElementsArrayList.get(position);
-
             Intent intent = new Intent(activity, MusicPlayerActivity.class);
             intent.putExtra("Song", current);
             startActivity(intent);
-
-
-//        if (mediaPlayer != null) mediaPlayer.release();
-//
-//        mediaPlayer = new MediaPlayer();
-//        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-//
-//        try {
-//            Uri myUri = Uri.parse(uri);
-//            mediaPlayer.setDataSource(context, myUri);
-//            mediaPlayer.prepare();
-//            mediaPlayer.start();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
             }
         });
     }
@@ -132,11 +109,8 @@ public class SongsFragment extends Fragment {
             int artist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int album = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int year = cursor.getColumnIndex(MediaStore.Audio.Media.YEAR);
-            int Title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int url = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-
-            //Getting Song ID From Cursor.
-            //int id = cursor.getColumnIndex(MediaStore.Audio.Media._ID);
+            int id = cursor.getColumnIndex(MediaStore.Audio.Media._ID);
 
             do {
                 String songTitle = cursor.getString(title);
@@ -145,9 +119,8 @@ public class SongsFragment extends Fragment {
                 int songYear = cursor.getInt(year);
                 String songUri = cursor.getString(url);
 
-
-
-                Song current =  new Song(songTitle,
+                Song current =  new Song(id,
+                                        songTitle,
                                         songArtist,
                                         "",
                                         songAlbum,

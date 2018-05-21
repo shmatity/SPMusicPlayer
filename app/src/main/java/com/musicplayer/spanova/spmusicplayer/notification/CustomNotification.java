@@ -9,12 +9,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.v4.media.app.NotificationCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.musicplayer.spanova.spmusicplayer.R;
+
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 public class CustomNotification extends Notification {
 
@@ -22,7 +26,7 @@ public class CustomNotification extends Notification {
     private NotificationManager mNotificationManager;
 
     @SuppressLint("NewApi")
-    public CustomNotification(Context ctx, String title, String message, int icon, Bitmap image){
+    public CustomNotification(Context ctx, Activity activity, String title, String message, int icon, Bitmap image){
         super();
         this.ctx = ctx;
         String ns = Context.NOTIFICATION_SERVICE;
@@ -34,28 +38,40 @@ public class CustomNotification extends Notification {
         builder.setSmallIcon(icon);
         builder.setLargeIcon(image);
         builder.setAutoCancel(true);
-//        Intent detailsIntent = new Intent(ctx.getApplicationContext(),
-//                NotificationPlayPauseActivity.class);
-//        builder.addAction(new Action(R.drawable.ic_format_list_bulleted_black_24dp, "",
-//                detailsIntent))
 
+        PendingIntent playPendingIntent = PendingIntent.getActivity(ctx, 0, new Intent(ctx, NotificationPlayPauseActivity.class), 0);
+        PendingIntent stopPendingIntent = PendingIntent.getActivity(ctx, 0, new Intent(ctx, NotificationStopActivity.class), 0);
+        builder.addAction(R.drawable.ic_play, "Previous", playPendingIntent); // #0
+        builder.addAction(R.drawable.ic_stop, "Pause", stopPendingIntent);  // #1
+
+        builder.setStyle(new Notification.MediaStyle().setShowActionsInCompactView(0,1));
+
+
+//
 //        @SuppressWarnings("deprecation")
 //        Notification notification = builder.getNotification();
 //        notification.when = when;
 //        notification.tickerText = title;
 //        notification.icon = icon;
 //        RemoteViews contentView = new RemoteViews(ctx.getPackageName(), R.layout.notification);
-////        final TextView textViewToChange = ctx.getApplicationContext().findViewById(R.id.message);
-////        textViewToChange.setText(title);
-//
+//        NotificationPlayPauseActivity playPauseActivity = new NotificationPlayPauseActivity();
+
+//        LayoutInflater inflater = (LayoutInflater) activity.getSystemService(LAYOUT_INFLATER_SERVICE);
+//        View layout = inflater.inflate(R.layout.notification, null);
+//        final TextView textViewToChange = contentView.findViewById(R.id.message);
+//        textViewToChange.setText(title);
+
 //        notification.contentView = contentView;
 //        notification.flags |= CustomNotification.FLAG_ONGOING_EVENT;
 //        NotificationManager mNotificationManager =
 //                (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
 //
 //        mNotificationManager.notify(548853, notification);
-
-
+//
+//        Intent play = new Intent(ctx, NotificationHelperActivity.class);
+//        play.putExtra("DO", "play");
+//        PendingIntent pPlay = PendingIntent.getActivity(ctx, 0, play, 0);
+//        contentView. (R.id.play, pPlay);
 //
 
 
@@ -71,36 +87,17 @@ public class CustomNotification extends Notification {
         }
     }
 
-//    public void setListeners(RemoteViews view){
-//        //radio listener
-//        Intent radio=new Intent(ctx,NotificationHelperActivity.class);
-//        radio.putExtra("DO", "radio");
-//        PendingIntent pRadio = PendingIntent.getActivity(ctx, 0, radio, 0);
-//        view.setOnClickPendingIntent(R.id.radio, pRadio);
-//
-////        //volume listener
-////        Intent volume=new Intent(ctx, NotificationHelperActivity.class);
-////        volume.putExtra("DO", "volume");
-////        PendingIntent pVolume = PendingIntent.getActivity(ctx, 1, volume, 0);
-////        view.setOnClickPendingIntent(R.id.volume, pVolume);
-//
-////        //reboot listener
-////        Intent reboot=new Intent(ctx, NotificationHelperActivity.class);
-////        reboot.putExtra("DO", "reboot");
-////        PendingIntent pReboot = PendingIntent.getActivity(ctx, 5, reboot, 0);
-////        view.setOnClickPendingIntent(R.id.reboot, pReboot);
-//
-//        //top listener
-//        Intent top=new Intent(ctx, NotificationHelperActivity.class);
-//        top.putExtra("DO", "top");
-//        PendingIntent pTop = PendingIntent.getActivity(ctx, 3, top, 0);
-//        view.setOnClickPendingIntent(R.id.top, pTop);
-//
-//        //app listener
-//        Intent app=new Intent(ctx, NotificationHelperActivity.class);
-//        app.putExtra("DO", "app");
-//        PendingIntent pApp = PendingIntent.getActivity(ctx, 4, app, 0);
-//        view.setOnClickPendingIntent(R.id.btn1, pApp);
-//    }
+    public void setListeners(RemoteViews view){
+        //radio listener
+        Intent play = new Intent(ctx, NotificationHelperActivity.class);
+        play.putExtra("DO", "play");
+        PendingIntent pPlay = PendingIntent.getActivity(ctx, 0, play, 0);
+        view.setOnClickPendingIntent(R.id.play, pPlay);
+
+        Intent stop = new Intent(ctx, NotificationHelperActivity.class);
+        stop.putExtra("DO", "stop");
+        PendingIntent pStop = PendingIntent.getActivity(ctx, 4, stop, 0);
+        view.setOnClickPendingIntent(R.id.stop, pStop);
+    }
 
 }

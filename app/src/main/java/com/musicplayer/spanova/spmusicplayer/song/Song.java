@@ -10,7 +10,7 @@ import com.musicplayer.spanova.spmusicplayer.R;
 import java.io.Serializable;
 
 public class Song implements Serializable {
-
+    int id = 0;
     String title = "None";
     String artist = "Unknown";
     String secondaryArtists = "Unknown";
@@ -20,7 +20,8 @@ public class Song implements Serializable {
     Bitmap image = null;
     int year = 0;
 
-    public Song(String title, String artist, String secondaryArtists, String album, int year, String uri) {
+    public Song(int id, String title, String artist, String secondaryArtists, String album, int year, String uri) {
+        this.id = id;
         this.title = title;
         this.artist = artist;
         this.secondaryArtists = secondaryArtists;
@@ -52,7 +53,6 @@ public class Song implements Serializable {
         this.uri = uri;
     }
 
-
     public String getArtist() {
         return artist;
     }
@@ -60,7 +60,6 @@ public class Song implements Serializable {
     public void setArtist(String artist) {
         this.artist = artist;
     }
-
 
     public Bitmap getImage() {
         return image;

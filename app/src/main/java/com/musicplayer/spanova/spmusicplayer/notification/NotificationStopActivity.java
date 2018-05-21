@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.musicplayer.spanova.spmusicplayer.R;
 
-public class NotificationPlayPauseActivity extends AppCompatActivity {
+public class NotificationStopActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

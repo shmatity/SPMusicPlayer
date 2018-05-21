@@ -1,6 +1,5 @@
 package com.musicplayer.spanova.spmusicplayer.notification;
 
-
 import android.app.Activity;
 import android.os.Bundle;
 
@@ -10,13 +9,12 @@ public class NotificationHelperActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         ctx = this;
         String action = (String) getIntent().getExtras().get("DO");
-        if (action.equals("radio")) {
+        if (action.equals("play")) {
             //Your code
-        } else if (action.equals("volume")) {
+        } else if (action.equals("stop")) {
             //Your code
         } else if (action.equals("reboot")) {
             //Your code
