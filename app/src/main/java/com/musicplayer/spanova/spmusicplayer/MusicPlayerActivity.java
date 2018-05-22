@@ -14,7 +14,6 @@ import android.content.ServiceConnection;
 import android.view.View;
 
 import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
-import com.musicplayer.spanova.spmusicplayer.notification.NotificationPanel;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
 
 public class MusicPlayerActivity extends AppCompatActivity implements  MediaController.MediaPlayerControl {
@@ -35,12 +34,11 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
             MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
             musicSrv = binder.getService();
             player = musicSrv.getPlayer();
-            musicSrv.setUri(song.getUri());
+            musicSrv.setSong(song);
             musicBound = true;
             songPicked();
             controller.show();
             showNotification();
-            //finish();
         }
 
         @Override
@@ -54,11 +52,11 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
     public void showNotification(){
         new CustomNotification(context,
                 this,
+                player,
                 song.getArtist(),
                 song.getTitle(),
                 R.drawable.ic_format_list_bulleted_black_24dp,
                 song.getImageFromSong(song.getUri(), getResources()));
-//        NotificationPanel nPanel = new NotificationPanel(this);
     }
 
     @Override
@@ -202,7 +200,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
     };
 
     public void songPicked() {
-        musicSrv.setUri(song.getUri());
+        musicSrv.setSong(song);
         musicSrv.playSong();
         controller.show();
     }

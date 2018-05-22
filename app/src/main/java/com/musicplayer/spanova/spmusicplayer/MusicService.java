@@ -10,6 +10,10 @@ import android.os.Binder;
 import android.os.PowerManager;
 import android.util.Log;
 import android.widget.MediaController;
+import android.widget.Toast;
+
+import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
+import com.musicplayer.spanova.spmusicplayer.song.Song;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -17,7 +21,7 @@ public class MusicService extends Service implements
 
 
     private MediaPlayer player;
-    private Uri uri;
+    private Song song;
     private final IBinder musicBind = new MusicBinder();
 
     public MediaPlayer getPlayer() {
@@ -45,6 +49,12 @@ public class MusicService extends Service implements
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
+        return START_STICKY;
+    }
+
+    @Override
     public void onPrepared(MediaPlayer mp) {
         mp.start();
     }
@@ -60,10 +70,7 @@ public class MusicService extends Service implements
 
     public void initMusicPlayer(){
         player = new MediaPlayer();
-
-
-        player.setWakeMode(getApplicationContext(),
-                PowerManager.PARTIAL_WAKE_LOCK);
+        player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
@@ -77,22 +84,20 @@ public class MusicService extends Service implements
         player = null;
     }
 
-    public void setUri(String uri) {
-        this.uri = Uri.parse(uri);
+    public void setSong(Song song) {
+        this.song = song;
     }
 
     public void playSong() {
         try {
             player.reset();
-            player.setDataSource(getApplicationContext(), uri);
+            player.setDataSource(getApplicationContext(), Uri.parse(song.getUri()));
             player.prepareAsync();
         }
         catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
     }
-
-
 
     public class MusicBinder extends Binder {
         MusicService getService() {
@@ -101,3 +106,6 @@ public class MusicService extends Service implements
     }
 
 }
+
+// TBD
+//https://medium.com/@deividi/a-good-way-to-handle-incoming-notifications-in-android-dc64c29041a5

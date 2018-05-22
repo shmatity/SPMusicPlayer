@@ -22,6 +22,16 @@
             android:taskAffinity=""
             android:excludeFromRecents="true"></activity>
         <service android:name=".MusicService" />
+        <receiver
+            android:name=".notification.NotificationReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="PLAY"/>
+                <action android:name="NEXT"/>
+                <action android:name="PREV"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 
