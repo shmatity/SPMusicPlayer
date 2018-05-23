@@ -15,6 +15,8 @@ import android.widget.Toast;
 import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
 
+import java.util.List;
+
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener {
@@ -22,7 +24,10 @@ public class MusicService extends Service implements
 
     private MediaPlayer player;
     private Song song;
+    private int currentSongIndex = 0;
+    private List<Song> ListElementsArrayList;
     private final IBinder musicBind = new MusicBinder();
+    int songPosn = 0;
 
     public MediaPlayer getPlayer() {
         return player;
@@ -84,8 +89,29 @@ public class MusicService extends Service implements
         player = null;
     }
 
+    public List<Song> getSongList() {
+        return ListElementsArrayList;
+    }
+
+    public void setSongList(List<Song> listElementsArrayList) {
+        ListElementsArrayList = listElementsArrayList;
+    }
+
     public void setSong(Song song) {
         this.song = song;
+    }
+
+    public Song getSong() {
+        return this.song;
+    }
+
+    public int getCurrentSongIndex() {
+        return currentSongIndex;
+    }
+
+    public void setCurrentSongIndex(int currentSongIndex) {
+        this.currentSongIndex = currentSongIndex;
+        this.song = ListElementsArrayList.get(currentSongIndex);;
     }
 
     public void playSong() {
@@ -100,11 +126,49 @@ public class MusicService extends Service implements
     }
 
     public class MusicBinder extends Binder {
-        MusicService getService() {
+        public MusicService getService() {
             return MusicService.this;
         }
     }
 
+
+    public int getPosn(){
+        return player.getCurrentPosition();
+    }
+
+    public int getDur(){
+        return player.getDuration();
+    }
+
+    public boolean isPng(){
+        return player.isPlaying();
+    }
+
+    public void pausePlayer(){
+        player.pause();
+    }
+
+    public void seek(int posn){
+        player.seekTo(posn);
+    }
+
+    public void go(){
+        player.start();
+    }
+
+    public void playPrev(){
+        if(getCurrentSongIndex() > 0) {
+            setCurrentSongIndex(getCurrentSongIndex() - 1);
+            playSong();
+        }
+    }
+
+    public void playNext(){
+        if(getSongList().size() > getCurrentSongIndex()) {
+            setCurrentSongIndex(getCurrentSongIndex() + 1);
+            playSong();
+        }
+    }
 }
 
 // TBD

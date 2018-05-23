@@ -3,15 +3,20 @@ package com.musicplayer.spanova.spmusicplayer;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.widget.MediaController;
 import android.os.IBinder;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.view.View;
+import android.widget.Toast;
 
 import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
@@ -23,6 +28,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
     private MediaPlayer player;
     private Intent playIntent;
     private boolean musicBound=false;
+    private Handler handler = new Handler();
     private int mCurrentBufferPercentage;
     Context context;
     Song song;
@@ -37,13 +43,12 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
             musicSrv.setSong(song);
             musicBound = true;
             songPicked();
-            controller.show();
             showNotification();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            controller.hide();
+            controller.hide(true);
             player = null;
             musicBound = false;
         }
@@ -66,9 +71,9 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
         context = getApplicationContext();
         Intent intent = getIntent();
         song = (Song) intent.getSerializableExtra("Song");
+        song = (Song) intent.getSerializableExtra("Song");
         mCurrentBufferPercentage = 0;
-        controller = new MusicController(this);
-        controller.setPrevNextListeners(onPrev, onNext);
+        setController();
     }
 
     @Override
@@ -78,27 +83,73 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
             playIntent = new Intent(context, MusicService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
-            controller.setAnchorView(findViewById(R.id.activity_music_player));
-            controller.setMediaPlayer(this);
-            controller.setEnabled(true);
+            setController();
         }
     }
 
+
+    public void setController () {
+        controller = new MusicController(this, false);
+        controller.setPrevNextListeners(onPrev, onNext);
+        controller.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context,"onCLick",Toast.LENGTH_SHORT).show();
+            }
+        });
+        controller.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Toast.makeText(context,"OnTouch",Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+        controller.setMediaPlayer(this);
+        controller.setAnchorView(getWindow().getDecorView().findViewById(R.id.activity_music_player));
+        controller.setEnabled(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            controller.setOnContextClickListener(new View.OnContextClickListener() {
+                @Override
+                public boolean onContextClick(View v) {
+                    Toast.makeText(context,"OnTouch",Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+        }
+        controller.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                Toast.makeText(context,"magic",Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+        controller.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+                Toast.makeText(context,"onViewAttachedToWindow",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                Toast.makeText(context,"onViewDetachedFromWindow",Toast.LENGTH_SHORT).show();
+            }
+        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            controller.setContextClickable(true);
+        }
+    }
+
+
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
-        Log.d("dfsg","asdfasd");
+        Toast.makeText(context,"onPointerCaptureChanged",Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //the MediaController will hide after 3 seconds - tap the screen to make it appear again
-        if (controller.isShowing()) {
-            controller.hide();
-            return true;
-        } else {
-            controller.show();
-            return true;
-        }
+        Toast.makeText(context,"onActivity touch",Toast.LENGTH_SHORT).show();
+        return false;
     }
 
     @Override
@@ -161,6 +212,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
 
     @Override
     public boolean canSeekBackward() {
+
         return false;
     }
 
@@ -202,7 +254,8 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
     public void songPicked() {
         musicSrv.setSong(song);
         musicSrv.playSong();
-        controller.show();
+        controller.show(0);
+        controller.requestFocus();
     }
 
     private void toggleMediaControlsVisiblity() {
@@ -211,6 +264,17 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
         } else {
             controller.show();
         }
+    }
+
+    private void playNext(){
+        musicSrv.playNext();
+        controller.show(0);
+    }
+
+    //play previous
+    private void playPrev(){
+        musicSrv.playPrev();
+        controller.show(0);
     }
 
 }
