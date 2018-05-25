@@ -11,25 +11,32 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
+import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.os.IBinder;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.view.View;
+import android.widget.ScrollView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
 
-public class MusicPlayerActivity extends AppCompatActivity implements  MediaController.MediaPlayerControl {
+public class MusicPlayerActivity extends AppCompatActivity {
 
-    private MusicController controller;
-    private MusicService musicSrv;
-    private MediaPlayer player;
-    private Intent playIntent;
-    private boolean musicBound=false;
-    private Handler handler = new Handler();
-    private int mCurrentBufferPercentage;
+    MusicService musicSrv;
+    MediaPlayer player;
+    Intent playIntent;
+    boolean musicBound=false;
+    Handler handler;
+    int mCurrentBufferPercentage;
+    SeekBar seekBar;
+    TextView currentSec;
+    TextView maxSec;
+    Runnable runnable;
     Context context;
     Song song;
 
@@ -40,17 +47,18 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
             MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
             musicSrv = binder.getService();
             player = musicSrv.getPlayer();
-            musicSrv.setSong(song);
             musicBound = true;
-            songPicked();
-            showNotification();
+            playSong();
+            musicSrv.playSong();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            controller.hide(true);
             player = null;
             musicBound = false;
+            if(handler!=null){
+                handler.removeCallbacks(runnable);
+            }
         }
     };
 
@@ -69,11 +77,33 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_player);
         context = getApplicationContext();
-        Intent intent = getIntent();
-        song = (Song) intent.getSerializableExtra("Song");
-        song = (Song) intent.getSerializableExtra("Song");
         mCurrentBufferPercentage = 0;
-        setController();
+        handler = new Handler();
+
+        ImageButton shuffleButton = (ImageButton) findViewById(R.id.shuffle);
+        shuffleButton.setBackgroundResource(R.drawable.ic_shuffle_gray);
+        shuffleButton.setOnClickListener(shuffleListener);
+
+        ImageButton prevButton = (ImageButton) findViewById(R.id.prev);
+        prevButton.setOnClickListener(prevListener);
+
+        ImageButton playPauseButton = (ImageButton) findViewById(R.id.playPause);
+        playPauseButton.setBackgroundResource(R.drawable.ic_play_black);
+        playPauseButton.setOnClickListener(playPauseListener);
+
+        ImageButton nextButton = (ImageButton) findViewById(R.id.next);
+        nextButton.setOnClickListener(nextListener);
+
+        ImageButton repeatButton = (ImageButton) findViewById(R.id.repeat);
+        repeatButton.setBackgroundResource(R.drawable.ic_repeat_gray);
+        repeatButton.setOnClickListener(repeatListener);
+
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        seekBar.setOnSeekBarChangeListener(onSeekBarChangeListener);
+
+        currentSec = (TextView) findViewById(R.id.currentSec);
+
+        maxSec = (TextView) findViewById(R.id.maxSec);
     }
 
     @Override
@@ -83,62 +113,8 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
             playIntent = new Intent(context, MusicService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
-            setController();
         }
     }
-
-
-    public void setController () {
-        controller = new MusicController(this, false);
-        controller.setPrevNextListeners(onPrev, onNext);
-        controller.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(context,"onCLick",Toast.LENGTH_SHORT).show();
-            }
-        });
-        controller.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(context,"OnTouch",Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
-        controller.setMediaPlayer(this);
-        controller.setAnchorView(getWindow().getDecorView().findViewById(R.id.activity_music_player));
-        controller.setEnabled(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            controller.setOnContextClickListener(new View.OnContextClickListener() {
-                @Override
-                public boolean onContextClick(View v) {
-                    Toast.makeText(context,"OnTouch",Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-            });
-        }
-        controller.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                Toast.makeText(context,"magic",Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-        controller.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(View v) {
-                Toast.makeText(context,"onViewAttachedToWindow",Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onViewDetachedFromWindow(View v) {
-                Toast.makeText(context,"onViewDetachedFromWindow",Toast.LENGTH_SHORT).show();
-            }
-        });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            controller.setContextClickable(true);
-        }
-    }
-
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
@@ -147,134 +123,126 @@ public class MusicPlayerActivity extends AppCompatActivity implements  MediaCont
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        //the MediaController will hide after 3 seconds - tap the screen to make it appear again
         Toast.makeText(context,"onActivity touch",Toast.LENGTH_SHORT).show();
         return false;
     }
 
-    @Override
-    public void start() {
-        if(player != null) {
-            player.start();
-        }
-    }
+    SeekBar.OnSeekBarChangeListener onSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener(){
 
-    @Override
-    public void pause() {
-        if(player != null) {
-            player.pause();
-        }
-    }
-
-    @Override
-    public int getDuration() {
-        if(player != null) {
-            return player.getDuration();
-        }
-        return 0;
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        if(player != null) {
-            return player.getCurrentPosition();
-        }
-        return 0;
-    }
-
-    @Override
-    public void seekTo(int pos) {
-        if(player != null) {
-            player.seekTo(pos);
-        }
-    }
-
-    @Override
-    public boolean isPlaying() {
-        if(player != null) {
-            return player.isPlaying();
-        }
-        return false;
-    }
-
-    @Override
-    public int getBufferPercentage() {
-        return mCurrentBufferPercentage;
-    }
-
-    @Override
-    public boolean canPause() {
-        if(player != null) {
-            return player.isPlaying();
-        }
-        return false;
-    }
-
-    @Override
-    public boolean canSeekBackward() {
-
-        return false;
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return false;
-    }
-
-    @Override
-    public int getAudioSessionId() {
-        if (player != null) {
-            return player.getAudioSessionId();
-        }
-        return 0;
-    }
-
-    private MediaPlayer.OnBufferingUpdateListener mBufferingUpdateListener =
-            new MediaPlayer.OnBufferingUpdateListener() {
-                public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    mCurrentBufferPercentage = percent;
-                }
-            };
-
-    private View.OnClickListener onPrev =
-            new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d("SP", "prev");
-                }
-            };
-
-    private View.OnClickListener onNext = new View.OnClickListener() {
         @Override
-        public void onClick(View v) {
-            Log.d("SP", "next");
+        public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
+            if(player != null){
+                player.seekTo(i*1000);
+            }
+//            if(player!=null)
+//            {
+//                int mpos = player.getCurrentPosition();
+//                int mdur= player.getDuration();
+//
+//                seekBar.setProgress(player.getCurrentPosition());
+//                currentSec.setText(String.valueOf((float)mpos/100) + " s ");
+//                maxSec.setText(String.valueOf((float)mdur/100)+ "m");
+//            }
+
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
         }
     };
 
-    public void songPicked() {
-        musicSrv.setSong(song);
-        musicSrv.playSong();
-        controller.show(0);
-        controller.requestFocus();
-    }
-
-    private void toggleMediaControlsVisiblity() {
-        if (controller.isShowing()) {
-            controller.hide();
-        } else {
-            controller.show();
+    View.OnClickListener playPauseListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v){
+            if(musicSrv.isPlaying()) {
+                musicSrv.pause();
+                v.setBackgroundResource(R.drawable.ic_pause_black);
+            } else {
+                playSong();
+                v.setBackgroundResource(R.drawable.ic_play_black);
+            }
         }
+    };
+
+    View.OnClickListener shuffleListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v){
+            musicSrv.setShuffle();
+            if(musicSrv.getShuffle()) {
+                v.setBackgroundResource(R.drawable.ic_shuffle_black);
+            } else {
+                v.setBackgroundResource(R.drawable.ic_shuffle_gray);
+            }
+        }
+    };
+
+    View.OnClickListener prevListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            musicSrv.playPrev();
+        }
+    };
+
+    View.OnClickListener nextListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            musicSrv.playNext();
+        }
+    };
+
+    View.OnClickListener repeatListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            musicSrv.setRepeat();
+            v.setBackgroundResource(musicSrv.getRepeatImage());
+        }
+    };
+
+    private MediaPlayer.OnBufferingUpdateListener mBufferingUpdateListener =
+        new MediaPlayer.OnBufferingUpdateListener() {
+        public void onBufferingUpdate(MediaPlayer mp, int percent) {
+            mCurrentBufferPercentage = percent;
+        }
+    };
+
+    protected void initializeSeekBar(){
+        seekBar.setMax(player.getDuration()/1000);
+
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                if(player!=null){
+                    int mCurrentPosition = player.getCurrentPosition()/1000; // In milliseconds
+                    seekBar.setProgress(mCurrentPosition);
+                    getAudioStats();
+                }
+                handler.postDelayed(runnable,1000);
+            }
+        };
     }
 
-    private void playNext(){
-        musicSrv.playNext();
-        controller.show(0);
+    protected void getAudioStats(){
+        int duration  = player.getDuration()/1000; // In milliseconds
+        int due = (player.getDuration() - player.getCurrentPosition())/1000;
+        int pass = duration - due;
+
+//        seekBar.setMax(player.getDuration());
+        maxSec.setText(String.valueOf((float)player.getDuration()/100)+ "m");
+        currentSec.setText(String.valueOf((float)player.getCurrentPosition()/100) + " s ");
     }
 
-    //play previous
-    private void playPrev(){
-        musicSrv.playPrev();
-        controller.show(0);
+    private void playSong() {
+        musicSrv.start();
+        initializeSeekBar();
+        seekBar.setProgress(player.getCurrentPosition());
+        seekBar.setMax(player.getDuration());
+//        maxSec.setText(String.valueOf((float)player.getDuration()/100)+ "m");
+//        currentSec.setText(String.valueOf((float)player.getCurrentPosition()/100) + " s ");
     }
-
 }

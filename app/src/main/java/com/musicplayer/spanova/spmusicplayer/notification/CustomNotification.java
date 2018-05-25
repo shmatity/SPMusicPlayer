@@ -60,8 +60,8 @@ public class CustomNotification extends Notification {
 //        PendingIntent playPendingIntent = PendingIntent.getService(ctx, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 //        PendingIntent nextPendingIntent = PendingIntent.getService(ctx, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 //        PendingIntent prevPendingIntent = PendingIntent.getService(ctx, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.addAction(R.drawable.ic_play, "Play", playPendingIntent); // #0
-        builder.addAction(R.drawable.ic_next, "Next", nextPendingIntent);  // #1
-        builder.addAction(R.drawable.ic_prev, "Prev", prevPendingIntent);  // #2
+//        builder.addAction(R.drawable.ic_play, "Play", playPendingIntent); // #0
+//        builder.addAction(R.drawable.ic_next, "Next", nextPendingIntent);  // #1
+//        builder.addAction(R.drawable.ic_prev, "Prev", prevPendingIntent);  // #2
     }
 }

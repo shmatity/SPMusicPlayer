@@ -14,13 +14,20 @@ import android.widget.Toast;
 
 import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
+import com.musicplayer.spanova.spmusicplayer.utils.Constants;
 
 import java.util.List;
+import java.util.Random;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener {
 
+    public class MusicBinder extends Binder {
+        public MusicService getService() {
+            return MusicService.this;
+        }
+    }
 
     private MediaPlayer player;
     private Song song;
@@ -28,6 +35,10 @@ public class MusicService extends Service implements
     private List<Song> ListElementsArrayList;
     private final IBinder musicBind = new MusicBinder();
     int songPosn = 0;
+    private boolean shuffle = false;
+
+    Constants.REPEAT repeat = Constants.REPEAT.NONE;
+    private Random rand;
 
     public MediaPlayer getPlayer() {
         return player;
@@ -45,6 +56,11 @@ public class MusicService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        if(repeat == Constants.REPEAT.SINGLE) {
+            playSong();
+        } else if(repeat == Constants.REPEAT.ALL) {
+            playNext();
+        }
     }
 
     @Override
@@ -71,6 +87,7 @@ public class MusicService extends Service implements
             player.release();
         }
         initMusicPlayer();
+        rand = new Random();
     }
 
     public void initMusicPlayer(){
@@ -97,12 +114,33 @@ public class MusicService extends Service implements
         ListElementsArrayList = listElementsArrayList;
     }
 
-    public void setSong(Song song) {
-        this.song = song;
+    public void setShuffle(){
+        if(shuffle) shuffle=false;
+        else shuffle=true;
+    }
+
+    public boolean getShuffle(){
+        return shuffle;
+    }
+
+    public void setRepeat() {
+        if(repeat == Constants.REPEAT.NONE) {
+            repeat = Constants.REPEAT.ALL;
+        } else if(repeat == Constants.REPEAT.ALL) {
+            repeat = Constants.REPEAT.SINGLE;
+        } else if(repeat == Constants.REPEAT.SINGLE) {
+            repeat = Constants.REPEAT.NONE;
+        } else {
+            repeat = Constants.REPEAT.NONE;
+        }
+    }
+
+    public  int getRepeatImage() {
+        return repeat.getDrowable();
     }
 
     public Song getSong() {
-        return this.song;
+        return this.ListElementsArrayList.get(currentSongIndex);
     }
 
     public int getCurrentSongIndex() {
@@ -125,49 +163,65 @@ public class MusicService extends Service implements
         }
     }
 
-    public class MusicBinder extends Binder {
-        public MusicService getService() {
-            return MusicService.this;
-        }
-    }
-
-
-    public int getPosn(){
-        return player.getCurrentPosition();
-    }
-
-    public int getDur(){
-        return player.getDuration();
-    }
-
-    public boolean isPng(){
+    public boolean isPlaying(){
         return player.isPlaying();
     }
 
-    public void pausePlayer(){
-        player.pause();
-    }
-
-    public void seek(int posn){
-        player.seekTo(posn);
-    }
-
-    public void go(){
+    public void start(){
         player.start();
     }
 
+    public void pause(){
+        player.pause();
+    }
+
+    public void stop(){
+        player.stop();
+    }
+
     public void playPrev(){
-        if(getCurrentSongIndex() > 0) {
-            setCurrentSongIndex(getCurrentSongIndex() - 1);
+        int currentIndex = 0;
+        if(repeat == Constants.REPEAT.SINGLE) {
             playSong();
+            return;
         }
+        if(shuffle){
+            currentIndex = rand.nextInt(getSongList().size());
+        } else {
+            if (getCurrentSongIndex() > 0) {
+                currentIndex = getCurrentSongIndex() - 1;
+            }
+        }
+        setCurrentSongIndex(currentIndex);
+        playSong();
     }
 
     public void playNext(){
-        if(getSongList().size() > getCurrentSongIndex()) {
-            setCurrentSongIndex(getCurrentSongIndex() + 1);
+        int currentIndex = 0;
+        if(repeat == Constants.REPEAT.SINGLE) {
             playSong();
+            return;
         }
+        if(shuffle){
+            currentIndex = rand.nextInt(getSongList().size());
+        } else {
+            if (getSongList().size() > getCurrentSongIndex()) {
+                currentIndex = getCurrentSongIndex() + 1;
+
+            }
+        }
+        setCurrentSongIndex(currentIndex);
+        playSong();
+    }
+
+    public void showNotification() {
+//        new CustomNotification(this,
+//                activity,
+//                player,
+//                song.getArtist(),
+//                song.getTitle(),
+//                R.drawable.ic_format_list_bulleted_black_24dp,
+//                song.getImageFromSong(song.getUri(), getResources()));
     }
 }
 
