@@ -1,9 +1,21 @@
 package com.musicplayer.spanova.spmusicplayer.song;
 
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.media.MediaMetadataRetriever;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.util.Log;
 
 import com.musicplayer.spanova.spmusicplayer.R;
 
@@ -61,6 +73,14 @@ public class Song implements Serializable {
         this.artist = artist;
     }
 
+    public String getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(String album) {
+        this.album = album;
+    }
+
     public Bitmap getImage() {
         return image;
     }
@@ -69,19 +89,43 @@ public class Song implements Serializable {
         this.image = image;
     }
 
-    public Bitmap getImageFromSong(String uri, Resources res) {
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        byte[] rawArt;
-        Bitmap art = BitmapFactory.decodeResource( res,
-                R.drawable.ic_launcher_background);
-        BitmapFactory.Options bfo=new BitmapFactory.Options();
+    public Bitmap getImageFromSong(String uri, Context ctx) {
+        MediaMetadataRetriever  metaRetriver = new MediaMetadataRetriever();
+        byte[] art = null;
+        Bitmap songImage = BitmapFactory.decodeResource(ctx.getResources(),
+                R.drawable.ic_launcher_foreground);
+        metaRetriver.setDataSource(uri);
+        try {
+            art = metaRetriver.getEmbeddedPicture();
+            songImage = BitmapFactory
+                    .decodeByteArray(art, 0, art.length);
+        } catch (Exception e) {
+            Log.d("SP", e.getMessage());
+        }
 
-        mmr.setDataSource(uri);
-        rawArt = mmr.getEmbeddedPicture();
+        return songImage;
+    }
 
-        if (null != rawArt)
-            art = BitmapFactory.decodeByteArray(rawArt, 0, rawArt.length, bfo);
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static Bitmap getBitmap(Context context, int drawableId) {
+            Drawable drawable = ContextCompat.getDrawable(context, drawableId);
+            if (drawable instanceof BitmapDrawable) {
+                return ((BitmapDrawable) drawable).getBitmap();
+            } else if (drawable instanceof VectorDrawable) {
+                return getBitmap((VectorDrawable) drawable);
+            } else {
+                throw new IllegalArgumentException("unsupported drawable type");
+            }
 
-        return art;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private static Bitmap getBitmap(VectorDrawable vectorDrawable) {
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        vectorDrawable.draw(canvas);
+        return bitmap;
     }
 }

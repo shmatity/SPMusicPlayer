@@ -2,6 +2,7 @@ package com.musicplayer.spanova.spmusicplayer;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.media.AudioManager;
@@ -34,6 +35,7 @@ public class MusicService extends Service implements
     private int currentSongIndex = 0;
     private List<Song> ListElementsArrayList;
     private final IBinder musicBind = new MusicBinder();
+    MediaPlayer.OnPreparedListener onPreparedListener;
     int songPosn = 0;
     private boolean shuffle = false;
 
@@ -77,7 +79,12 @@ public class MusicService extends Service implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        this.onPreparedListener.onPrepared(mp);
         mp.start();
+    }
+
+    public void setOnPreparedListener(MediaPlayer.OnPreparedListener onPreparedListener) {
+        this.onPreparedListener = onPreparedListener;
     }
 
     public void onCreate(){
@@ -179,6 +186,24 @@ public class MusicService extends Service implements
         player.stop();
     }
 
+    public int getDuration() {
+        return player.getDuration();
+    }
+
+    public int getCurrentPosition() {
+        return player.getCurrentPosition();
+    }
+
+    public void seekTo(int progress) {
+        player.seekTo(progress);
+    }
+
+    public Bitmap getSongImage() {
+        return song.getImage();
+    }
+    public boolean isPaused() {
+        return !player.isPlaying() && player.getCurrentPosition() > 1;
+    }
     public void playPrev(){
         int currentIndex = 0;
         if(repeat == Constants.REPEAT.SINGLE) {
