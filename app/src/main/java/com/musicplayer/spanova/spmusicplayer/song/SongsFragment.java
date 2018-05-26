@@ -116,7 +116,7 @@ public class SongsFragment extends Fragment {
         uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
         cursor = contentResolver.query(
-                uri, // Uri
+                uri,
                 null,
                 null,
                 null,

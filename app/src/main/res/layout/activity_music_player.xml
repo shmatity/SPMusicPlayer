@@ -13,32 +13,29 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="10px"
+        android:layout_above="@+id/seek"
         android:orientation="vertical">
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_previous_black"
+            android:src="@drawable/ic_music_black"
             android:scaleType="fitCenter"
             android:id="@+id/songImage"/>
-        <TextView
+        <ImageButton
+            android:id="@+id/shareButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Now playing:"
-            android:textSize="25sp"
-            android:textStyle="bold"
+            android:src="@drawable/ic_share_black"
+            android:layout_toLeftOf="@+id/moreOptionsButton"
             />
-        <TextView
-            android:id="@+id/now_playing_text"
+        <ImageButton
+            android:id="@+id/moreOptionsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dip"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip"
             android:layout_gravity="center"
-            android:text="Now playing.."
-            android:textSize="16sp"
-            android:textStyle="italic"
+            android:src="@drawable/ic_more_black"
+            android:layout_alignParentRight="true"
             />
     </RelativeLayout>
 

@@ -1,7 +1,11 @@
 package com.musicplayer.spanova.spmusicplayer;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -75,9 +79,13 @@ public class MusicPlayerActivity extends AppCompatActivity {
             currentSec = (TextView) findViewById(R.id.currentSec);
             maxSec = (TextView) findViewById(R.id.maxSec);
 
+            song = musicSrv.getSong();
+
             initializControls();
             initializeSongInfo();
+
             musicSrv.playSong();
+            showNotification();
         }
 
         @Override
@@ -183,6 +191,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             musicSrv.playPrev();
+            song = musicSrv.getSong();
         }
     };
 
@@ -190,6 +199,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             musicSrv.playNext();
+            song = musicSrv.getSong();
         }
     };
 
@@ -236,14 +246,16 @@ public class MusicPlayerActivity extends AppCompatActivity {
         albumName = (TextView) findViewById(R.id.albumName);
         songImage = (ImageView) findViewById(R.id.songImage);
 
-        songTitle.setText(musicSrv.getSong().getTitle());
-        artistName.setText(musicSrv.getSong().getArtist());
-        albumName.setText(musicSrv.getSong().getAlbum());
-        songImage.setImageBitmap(musicSrv.getSong().getImageFromSong(musicSrv.getSong().getUri(), getApplicationContext()));
+        songTitle.setText(song.getTitle());
+        artistName.setText(song.getArtist());
+        albumName.setText(song.getAlbum());
+        Bitmap image = song.getImageFromSong(song.getUri(), getApplicationContext());
+        if(image != null) songImage.setImageBitmap(song.getImageFromSong(song.getUri(), getApplicationContext()));
     }
 
     protected void initializeSeekBar() {
         setMaxSec();
+        setCurrentSec();
         runnable = new Runnable() {
             @Override
             public void run() {
@@ -278,4 +290,11 @@ public class MusicPlayerActivity extends AppCompatActivity {
         currentSec.setText(passString);
     }
 
+    public void showNotification() {
+        new CustomNotification(context,
+                song.getArtist(),
+                song.getTitle(),
+                R.drawable.ic_format_list_bulleted_black_24dp,
+                song.getImageFromSong(song.getUri(), context));
+    }
 }

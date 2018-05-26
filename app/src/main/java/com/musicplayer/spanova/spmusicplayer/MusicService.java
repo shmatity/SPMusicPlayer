@@ -238,16 +238,6 @@ public class MusicService extends Service implements
         setCurrentSongIndex(currentIndex);
         playSong();
     }
-
-    public void showNotification() {
-//        new CustomNotification(this,
-//                activity,
-//                player,
-//                song.getArtist(),
-//                song.getTitle(),
-//                R.drawable.ic_format_list_bulleted_black_24dp,
-//                song.getImageFromSong(song.getUri(), getResources()));
-    }
 }
 
 // TBD

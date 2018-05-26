@@ -92,8 +92,7 @@ public class Song implements Serializable {
     public Bitmap getImageFromSong(String uri, Context ctx) {
         MediaMetadataRetriever  metaRetriver = new MediaMetadataRetriever();
         byte[] art = null;
-        Bitmap songImage = BitmapFactory.decodeResource(ctx.getResources(),
-                R.drawable.ic_launcher_foreground);
+        Bitmap songImage = null;
         metaRetriver.setDataSource(uri);
         try {
             art = metaRetriver.getEmbeddedPicture();
@@ -102,30 +101,6 @@ public class Song implements Serializable {
         } catch (Exception e) {
             Log.d("SP", e.getMessage());
         }
-
         return songImage;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static Bitmap getBitmap(Context context, int drawableId) {
-            Drawable drawable = ContextCompat.getDrawable(context, drawableId);
-            if (drawable instanceof BitmapDrawable) {
-                return ((BitmapDrawable) drawable).getBitmap();
-            } else if (drawable instanceof VectorDrawable) {
-                return getBitmap((VectorDrawable) drawable);
-            } else {
-                throw new IllegalArgumentException("unsupported drawable type");
-            }
-
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static Bitmap getBitmap(VectorDrawable vectorDrawable) {
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
-                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        vectorDrawable.draw(canvas);
-        return bitmap;
     }
 }

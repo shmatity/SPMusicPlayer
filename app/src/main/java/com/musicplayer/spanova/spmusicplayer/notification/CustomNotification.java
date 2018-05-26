@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
+import com.musicplayer.spanova.spmusicplayer.MusicService;
 import com.musicplayer.spanova.spmusicplayer.R;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
@@ -27,19 +28,18 @@ public class CustomNotification extends Notification {
     private NotificationManager mNotificationManager;
 
     @SuppressLint("NewApi")
-    public CustomNotification(Context ctx, Activity activity, MediaPlayer player, String title, String message, int icon, Bitmap image){
+    public CustomNotification(Context ctx, String title, String message, int icon, Bitmap image){
         super();
         this.ctx = ctx;
         String ns = Context.NOTIFICATION_SERVICE;
         mNotificationManager = (NotificationManager) ctx.getSystemService(ns);
-        long when = System.currentTimeMillis();
         Notification.Builder builder = new Notification.Builder(ctx);
         builder.setContentText(title);
         builder.setContentTitle(message);
         builder.setSmallIcon(icon);
         builder.setLargeIcon(image);
         builder.setOngoing(true);
-        setActions(activity, player, builder);
+       // setActions(activity, service, builder);
         builder.setStyle(new Notification.MediaStyle().setShowActionsInCompactView(2, 0, 1));
         builder.setPriority(Notification.PRIORITY_MAX);
 
@@ -50,7 +50,7 @@ public class CustomNotification extends Notification {
         }
     }
 
-    public void setActions(Activity activity, MediaPlayer player, Notification.Builder builder) {
+    public void setActions(Activity activity, MusicService service, Notification.Builder builder) {
         Intent playIntent = new Intent("PLAY");
         Intent nextIntent = new Intent("NEXT");
         Intent prevIntent = new Intent("PREV");
