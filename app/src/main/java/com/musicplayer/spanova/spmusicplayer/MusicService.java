@@ -36,15 +36,13 @@ public class MusicService extends Service implements
     private List<Song> ListElementsArrayList;
     private final IBinder musicBind = new MusicBinder();
     MediaPlayer.OnPreparedListener onPreparedListener;
+    MediaPlayer.OnCompletionListener onCompletionListener;
+    OnNextListener onNextListener;
     int songPosn = 0;
     private boolean shuffle = false;
 
     Constants.REPEAT repeat = Constants.REPEAT.NONE;
     private Random rand;
-
-    public MediaPlayer getPlayer() {
-        return player;
-    }
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -63,6 +61,7 @@ public class MusicService extends Service implements
         } else if(repeat == Constants.REPEAT.ALL) {
             playNext();
         }
+        this.onCompletionListener.onCompletion(mp);
     }
 
     @Override
@@ -83,10 +82,6 @@ public class MusicService extends Service implements
         mp.start();
     }
 
-    public void setOnPreparedListener(MediaPlayer.OnPreparedListener onPreparedListener) {
-        this.onPreparedListener = onPreparedListener;
-    }
-
     public void onCreate(){
         super.onCreate();
         if (player != null) {
@@ -97,6 +92,25 @@ public class MusicService extends Service implements
         rand = new Random();
     }
 
+    public void onDestroy(){
+        super.onDestroy();
+        player.stop();
+        player.release();
+        player = null;
+    }
+
+    public void setOnPreparedListener(MediaPlayer.OnPreparedListener onPreparedListener) {
+        this.onPreparedListener = onPreparedListener;
+    }
+
+    public void setOnCompletionListener(MediaPlayer.OnCompletionListener onCompletionListener) {
+        this.onCompletionListener = onCompletionListener;
+    }
+
+//    public void setOnNextListener(OnNextListener listener) {
+//        this.onNextListener = listener;
+//    }
+
     public void initMusicPlayer(){
         player = new MediaPlayer();
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
@@ -104,13 +118,6 @@ public class MusicService extends Service implements
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnErrorListener(this);
-    }
-
-    public void onDestroy(){
-        super.onDestroy();
-        player.stop();
-        player.release();
-        player = null;
     }
 
     public List<Song> getSongList() {
@@ -201,9 +208,11 @@ public class MusicService extends Service implements
     public Bitmap getSongImage() {
         return song.getImage();
     }
+
     public boolean isPaused() {
         return !player.isPlaying() && player.getCurrentPosition() > 1;
     }
+
     public void playPrev(){
         int currentIndex = 0;
         if(repeat == Constants.REPEAT.SINGLE) {
@@ -219,6 +228,7 @@ public class MusicService extends Service implements
         }
         setCurrentSongIndex(currentIndex);
         playSong();
+
     }
 
     public void playNext(){
@@ -232,12 +242,17 @@ public class MusicService extends Service implements
         } else {
             if (getSongList().size() > getCurrentSongIndex()) {
                 currentIndex = getCurrentSongIndex() + 1;
-
             }
         }
         setCurrentSongIndex(currentIndex);
         playSong();
+//        this.onNextListener.OnNext();
     }
+
+    public MediaPlayer getPlayer() {
+        return player;
+    }
+
 }
 
 // TBD

@@ -43,7 +43,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
     Runnable runnable;
     Context context;
     Song song;
-
+    CustomNotification notification;
     SeekBar seekBar;
     TextView currentSec;
     TextView maxSec;
@@ -68,12 +68,28 @@ public class MusicPlayerActivity extends AppCompatActivity {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     seekBar.setMax((int) (musicSrv.getDuration()/1000));
-                    initializeSeekBar();
+                    initializeSong();
                 }
             });
 
+            musicSrv.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
+
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+
+                }
+            });
+
+//            musicSrv.setOnNextListener(new OnNextListener() {
+//                @Override
+//                public void OnNext() {
+//                    initializeSong();
+//                }
+//            });
+
             setContentView(R.layout.activity_music_player);
 
+            initializControls();
             seekBar = (SeekBar) findViewById(R.id.seekBar);
             seekBar.setOnSeekBarChangeListener(onSeekBarChangeListener);
             currentSec = (TextView) findViewById(R.id.currentSec);
@@ -81,11 +97,8 @@ public class MusicPlayerActivity extends AppCompatActivity {
 
             song = musicSrv.getSong();
 
-            initializControls();
-            initializeSongInfo();
-
+            initializeSong();
             musicSrv.playSong();
-            showNotification();
         }
 
         @Override
@@ -172,6 +185,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
                 musicSrv.playSong();
                 ((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_black));
             }
+            showNotification();
         }
     };
 
@@ -217,10 +231,15 @@ public class MusicPlayerActivity extends AppCompatActivity {
             mCurrentBufferPercentage = percent;
         }
     };
+
     protected void initializControls() {
 
         shuffleButton = (ImageButton) findViewById(R.id.shuffle);
-        shuffleButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_shuffle_gray));
+        if(musicSrv.getShuffle()) {
+            shuffleButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_shuffle_black));
+        } else {
+            shuffleButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_shuffle_gray));
+        }
         shuffleButton.setOnClickListener(shuffleListener);
 
         prevButton = (ImageButton) findViewById(R.id.prev);
@@ -236,7 +255,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         nextButton.setOnClickListener(nextListener);
 
         repeatButton = (ImageButton) findViewById(R.id.repeat);
-        repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_repeat_gray));
+        repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), musicSrv.getRepeatImage()));
         repeatButton.setOnClickListener(repeatListener);
     }
 
@@ -249,8 +268,8 @@ public class MusicPlayerActivity extends AppCompatActivity {
         songTitle.setText(song.getTitle());
         artistName.setText(song.getArtist());
         albumName.setText(song.getAlbum());
-        Bitmap image = song.getImageFromSong(song.getUri(), getApplicationContext());
-        if(image != null) songImage.setImageBitmap(song.getImageFromSong(song.getUri(), getApplicationContext()));
+        Bitmap image = song.getImageFromSong(getApplicationContext());
+        songImage.setImageBitmap(image);
     }
 
     protected void initializeSeekBar() {
@@ -291,10 +310,30 @@ public class MusicPlayerActivity extends AppCompatActivity {
     }
 
     public void showNotification() {
-        new CustomNotification(context,
-                song.getArtist(),
-                song.getTitle(),
-                R.drawable.ic_format_list_bulleted_black_24dp,
-                song.getImageFromSong(song.getUri(), context));
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    CustomNotification.getInstance().updateNotification(context,
+                            song.getArtist(),
+                            song.getTitle(),
+                            R.drawable.ic_format_list_bulleted_black_24dp,
+                            song.getImageFromSong(context),
+                            musicSrv.isPlaying());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        thread.start();
+    }
+
+    public void initializeSong() {
+        song = musicSrv.getSong();
+        initializControls();
+        initializeSongInfo();
+        showNotification();
+        initializeSeekBar();
     }
 }

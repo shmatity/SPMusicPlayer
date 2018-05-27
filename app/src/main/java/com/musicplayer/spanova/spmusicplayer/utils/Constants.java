@@ -3,7 +3,7 @@ package com.musicplayer.spanova.spmusicplayer.utils;
 import com.musicplayer.spanova.spmusicplayer.R;
 
 public class Constants {
-
+    public static int notificationID = 548853;
     public enum REPEAT {
         NONE(R.drawable.ic_repeat_gray, 0),
         ALL(R.drawable.ic_repeat_black, 1),

@@ -18,6 +18,7 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
 
 import com.musicplayer.spanova.spmusicplayer.R;
+import com.musicplayer.spanova.spmusicplayer.utils.Utils;
 
 import java.io.Serializable;
 
@@ -89,11 +90,11 @@ public class Song implements Serializable {
         this.image = image;
     }
 
-    public Bitmap getImageFromSong(String uri, Context ctx) {
+    public Bitmap getImageFromSong( Context ctx) {
         MediaMetadataRetriever  metaRetriver = new MediaMetadataRetriever();
         byte[] art = null;
-        Bitmap songImage = null;
-        metaRetriver.setDataSource(uri);
+        Bitmap songImage = Utils.getBitmapFromVectorDrawable(ctx, R.drawable.ic_music_black);
+        metaRetriver.setDataSource(this.uri);
         try {
             art = metaRetriver.getEmbeddedPicture();
             songImage = BitmapFactory
