@@ -1,5 +1,7 @@
 package com.musicplayer.spanova.spmusicplayer;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -72,7 +74,6 @@ public class MusicService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
         return START_STICKY;
     }
 
@@ -163,10 +164,11 @@ public class MusicService extends Service implements
 
     public void setCurrentSongIndex(int currentSongIndex) {
         this.currentSongIndex = currentSongIndex;
-        this.song = ListElementsArrayList.get(currentSongIndex);;
+        this.song = ListElementsArrayList.get(currentSongIndex);
     }
 
     public void playSong() {
+        showNotification();//TBD
         try {
             player.reset();
             player.setDataSource(getApplicationContext(), Uri.parse(song.getUri()));
@@ -251,6 +253,17 @@ public class MusicService extends Service implements
 
     public MediaPlayer getPlayer() {
         return player;
+    }
+
+
+    public void showNotification() {
+        startForeground(Constants.notificationID,  CustomNotification.getInstance());
+        CustomNotification.getInstance().updateNotification(this,
+                song.getArtist(),
+                song.getTitle(),
+                R.drawable.ic_format_list_bulleted_black_24dp,
+                song.getImageFromSong(this),
+                player.isPlaying());
     }
 
 }

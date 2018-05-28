@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.musicplayer.spanova.spmusicplayer.MusicPlayerActivity;
 import com.musicplayer.spanova.spmusicplayer.MusicService;
 import com.musicplayer.spanova.spmusicplayer.R;
+import com.musicplayer.spanova.spmusicplayer.song.Song;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;

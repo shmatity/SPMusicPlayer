@@ -76,7 +76,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
 
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-
+                    managePlayPauseIcon(playPauseButton);
                 }
             });
 
@@ -108,17 +108,6 @@ public class MusicPlayerActivity extends AppCompatActivity {
         }
     };
 
-//
-//    public void showNotification(){
-//        new CustomNotification(context,
-//                this,
-//                player,
-//                song.getArtist(),
-//                song.getTitle(),
-//                R.drawable.ic_format_list_bulleted_black_24dp,
-//                song.getImageFromSong(song.getUri(), getResources()));
-//    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,8 +116,9 @@ public class MusicPlayerActivity extends AppCompatActivity {
         handler = new Handler();
         if( playIntent == null ){
             playIntent = new Intent(context, MusicService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+
         }
     }
 
@@ -178,14 +168,15 @@ public class MusicPlayerActivity extends AppCompatActivity {
         public void onClick(View v){
             if(musicSrv.isPlaying()) {
                 musicSrv.pause();
-                ((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_play_black));
+                //((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_play_black));
             } else if(musicSrv.isPaused()){
                 musicSrv.start();
             } else {
                 musicSrv.playSong();
-                ((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_black));
+                //((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_black));
             }
-            showNotification();
+            managePlayPauseIcon(playPauseButton);
+//            showNotification();
         }
     };
 
@@ -193,11 +184,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         @Override
         public void onClick(View v){
             musicSrv.setShuffle();
-            if(musicSrv.getShuffle()) {
-                ((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_shuffle_black));
-            } else {
-                ((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_shuffle_gray));
-            }
+            manageShuffleIcon((ImageButton) v);
         }
     };
 
@@ -233,13 +220,8 @@ public class MusicPlayerActivity extends AppCompatActivity {
     };
 
     protected void initializControls() {
-
         shuffleButton = (ImageButton) findViewById(R.id.shuffle);
-        if(musicSrv.getShuffle()) {
-            shuffleButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_shuffle_black));
-        } else {
-            shuffleButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_shuffle_gray));
-        }
+        manageShuffleIcon(shuffleButton);
         shuffleButton.setOnClickListener(shuffleListener);
 
         prevButton = (ImageButton) findViewById(R.id.prev);
@@ -247,6 +229,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         prevButton.setOnClickListener(prevListener);
 
         playPauseButton = (ImageButton) findViewById(R.id.playPause);
+//        managePlayPauseIcon(playPauseButton);
         playPauseButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_black));
         playPauseButton.setOnClickListener(playPauseListener);
 
@@ -309,31 +292,47 @@ public class MusicPlayerActivity extends AppCompatActivity {
         currentSec.setText(passString);
     }
 
-    public void showNotification() {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    CustomNotification.getInstance().updateNotification(context,
-                            song.getArtist(),
-                            song.getTitle(),
-                            R.drawable.ic_format_list_bulleted_black_24dp,
-                            song.getImageFromSong(context),
-                            musicSrv.isPlaying());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        thread.start();
-    }
+//    public void showNotification() {
+//        Thread thread = new Thread() {
+//            @Override
+//            public void run() {
+//                try {
+//                    CustomNotification.getInstance().updateNotification(context,
+//                            song.getArtist(),
+//                            song.getTitle(),
+//                            R.drawable.ic_format_list_bulleted_black_24dp,
+//                            song.getImageFromSong(context),
+//                            musicSrv.isPlaying());
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        };
+//
+//        thread.start();
+//    }
 
     public void initializeSong() {
         song = musicSrv.getSong();
         initializControls();
         initializeSongInfo();
-        showNotification();
+//        showNotification();
         initializeSeekBar();
+    }
+
+    private void manageShuffleIcon(ImageButton v) {
+        if(musicSrv.getShuffle()) {
+            v.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_shuffle_black));
+        } else {
+            v.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_shuffle_gray));
+        }
+    }
+
+    private void managePlayPauseIcon(ImageButton v) {
+        if(musicSrv.isPlaying()) {
+            v.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_black));
+        } else {
+            v.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_play_black));
+        }
     }
 }
