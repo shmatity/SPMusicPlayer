@@ -39,6 +39,8 @@ import com.musicplayer.spanova.spmusicplayer.R;
 import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
 import com.musicplayer.spanova.spmusicplayer.song.SongAdapter;
+import com.musicplayer.spanova.spmusicplayer.utils.Constants;
+import com.musicplayer.spanova.spmusicplayer.utils.SortOption;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -52,7 +54,8 @@ public class SongsFragment extends Fragment {
     ContentResolver contentResolver;
     Cursor cursor;
     Uri uri;
-
+    String search = "*";
+    int sortIndex = 0;
     private MusicService musicSrv;
     private MediaPlayer player;
     private Intent playIntent;
@@ -89,6 +92,11 @@ public class SongsFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         activity = this.getActivity();
         context = activity.getApplicationContext();
+        if (this.getArguments() != null) {
+            search = getArguments().getString("search");
+            sortIndex = getArguments().getInt("sort");
+        }
+
         if( playIntent == null ){
             playIntent = new Intent(context, MusicService.class);
             activity.bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
@@ -112,15 +120,19 @@ public class SongsFragment extends Fragment {
     public List<Song> GetAllMediaMp3Files() {
         List<Song> result = new ArrayList<Song>();
         contentResolver = activity.getContentResolver();
-
         uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
+        SortOption sortOrder = Constants.sortOptions[sortIndex];
+        search = (search!= null) ? search : "*";
+        String searchCriteria = MediaStore.Audio.Media.TITLE + " LIKE ? OR " +
+                MediaStore.Audio.Media.ARTIST + " LIKE ? OR " +
+                MediaStore.Audio.Media.ARTIST + " LIKE ? " ;
         cursor = contentResolver.query(
                 uri,
                 null,
-                null,
-                null,
-                null
+                searchCriteria,
+                new String[]{ "%" + search + "%"},
+                sortOrder.getOrderString()
         );
 
         if (cursor == null) {

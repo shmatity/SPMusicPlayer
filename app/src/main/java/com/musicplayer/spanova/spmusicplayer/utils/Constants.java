@@ -1,6 +1,11 @@
 package com.musicplayer.spanova.spmusicplayer.utils;
 
+import android.provider.MediaStore;
+
 import com.musicplayer.spanova.spmusicplayer.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Constants {
     public static int notificationID = 548853;
@@ -32,5 +37,23 @@ public class Constants {
             this.drowable = drowable;
             this.index = index;
         }
+    }
+
+    public static SortOption[] sortOptions = new SortOption[] {
+            new SortOption(0, "Title", MediaStore.Audio.Media.TITLE + " ASC"),
+            new SortOption(1, "Artist", MediaStore.Audio.Media.ARTIST + " ASC"),
+            new SortOption(2,"Album", MediaStore.Audio.Media.ALBUM + " ASC"),
+            new SortOption(3,"Newer", MediaStore.Audio.Media.DATE_ADDED + " DESC"),
+            new SortOption(4,"Older", MediaStore.Audio.Media.DATE_ADDED + " ASC"),
+
+    };
+
+    public static String[] generateSortSpinnerOptions() {
+        List<String> listResult = new ArrayList<String>();
+        for ( SortOption option : sortOptions) {
+            listResult.add(option.getTitle());
+        }
+        String[] result = new String[listResult.size()];
+        return listResult.toArray(result);
     }
 }
