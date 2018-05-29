@@ -1,30 +1,17 @@
 package com.musicplayer.spanova.spmusicplayer.notification;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
 import android.os.Build;
-import android.support.v4.media.app.NotificationCompat;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.RemoteViews;
-import android.widget.TextView;
 
 import com.musicplayer.spanova.spmusicplayer.MusicPlayerActivity;
-import com.musicplayer.spanova.spmusicplayer.MusicService;
 import com.musicplayer.spanova.spmusicplayer.R;
-import com.musicplayer.spanova.spmusicplayer.song.Song;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
-
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 public class CustomNotification extends Notification {
     private Context ctx;
@@ -70,9 +57,9 @@ public class CustomNotification extends Notification {
     }
 
     public void setActions( Notification.Builder builder) {
-        Intent playIntent = new Intent("PLAY");
-        Intent nextIntent = new Intent("NEXT");
-        Intent prevIntent = new Intent("PREV");
+        Intent playIntent = new Intent(Constants.PLAY_PAUSE_ACTION);
+        Intent nextIntent = new Intent(Constants.NEXT_ACTION);
+        Intent prevIntent = new Intent(Constants.PREV_ACTION);
         PendingIntent playPendingIntent = PendingIntent.getBroadcast(ctx, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent nextPendingIntent = PendingIntent.getBroadcast(ctx, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent prevPendingIntent = PendingIntent.getBroadcast(ctx, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT);

@@ -1,0 +1,64 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#09C"
+    android:padding="@dimen/widget_margin">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/controls"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:layout_margin="10px"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/shuffle"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_shuffle_black"
+            android:layout_height="wrap_content" />
+
+        <ImageButton
+            android:id="@+id/prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_previous_black"
+            android:layout_toRightOf="@+id/shuffle"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:id="@+id/playPause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_play_black"
+            android:layout_toRightOf="@+id/prev" />
+
+        <ImageButton
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_next_black"
+            android:layout_toRightOf="@+id/playPause"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:id="@+id/repeat"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_repeat_black"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_toRightOf="@+id/next" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:id="@+id/songArt"
+            android:layout_weight="1"
+            android:src="@drawable/ic_music_black"
+            android:layout_toRightOf="@+id/repeat"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</RelativeLayout>

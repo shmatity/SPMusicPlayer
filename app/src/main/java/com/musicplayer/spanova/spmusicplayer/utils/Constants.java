@@ -1,5 +1,6 @@
 package com.musicplayer.spanova.spmusicplayer.utils;
 
+import android.appwidget.AppWidgetManager;
 import android.provider.MediaStore;
 
 import com.musicplayer.spanova.spmusicplayer.R;
@@ -9,6 +10,15 @@ import java.util.List;
 
 public class Constants {
     public static int notificationID = 548853;
+    public static String ACTION = "ACTION";
+    public static String PLAY_PAUSE_ACTION = "PLAY_PAUSE";
+    public static String PREV_ACTION = "PREV";
+    public static String NEXT_ACTION = "NEXT";
+    public static String SHUFFLE_ACTION = "SHUFFLE";
+    public static String REPEAT_ACTION = "REPEAT";
+    public static String ART_CLICKED_ACTION = "ART_CLICKED";
+    public static String widgetID = "WIDGET_ID";//AppWidgetManager.EXTRA_APPWIDGET_ID;;
+
     public enum REPEAT {
         NONE(R.drawable.ic_repeat_gray, 0),
         ALL(R.drawable.ic_repeat_black, 1),
@@ -37,7 +47,7 @@ public class Constants {
             this.drowable = drowable;
             this.index = index;
         }
-    }
+    };
 
     public static SortOption[] sortOptions = new SortOption[] {
             new SortOption(0, "Title", MediaStore.Audio.Media.TITLE + " ASC"),

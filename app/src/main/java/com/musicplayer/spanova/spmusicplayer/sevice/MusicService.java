@@ -1,8 +1,7 @@
-package com.musicplayer.spanova.spmusicplayer;
+package com.musicplayer.spanova.spmusicplayer.sevice;
 
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Service;
+import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
@@ -12,9 +11,9 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
 import android.util.Log;
-import android.widget.MediaController;
-import android.widget.Toast;
 
+//import com.musicplayer.spanova.spmusicplayer.OnNextListener;
+import com.musicplayer.spanova.spmusicplayer.R;
 import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
@@ -33,13 +32,14 @@ public class MusicService extends Service implements
     }
 
     private MediaPlayer player;
-    private Song song;
     private int currentSongIndex = 0;
     private List<Song> ListElementsArrayList;
     private final IBinder musicBind = new MusicBinder();
     MediaPlayer.OnPreparedListener onPreparedListener;
     MediaPlayer.OnCompletionListener onCompletionListener;
-    OnNextListener onNextListener;
+    MediaExtractor me;
+//    OnNextListener onNextListener;
+    AppWidgetManager appWidgetManager;
     int songPosn = 0;
     private boolean shuffle = false;
 
@@ -48,6 +48,8 @@ public class MusicService extends Service implements
 
     @Override
     public IBinder onBind(Intent arg0) {
+         me = new MediaExtractor(getApplicationContext());
+        setSongList(me.GetAllMediaMp3Files());
         return musicBind;
     }
 
@@ -129,6 +131,20 @@ public class MusicService extends Service implements
         ListElementsArrayList = listElementsArrayList;
     }
 
+
+    public void setSortOption(int sortOption) {
+        if(me.getSortIndex() != sortOption) {
+            me.setSortIndex(sortOption);setSongList(me.GetAllMediaMp3Files());
+        }
+    }
+
+    public void setSearch(String search) {
+        if(!me.getSearch().equals(search)) {
+            me.setSearch(search);
+            setSongList(me.GetAllMediaMp3Files());
+        }
+    }
+
     public void setShuffle(){
         if(shuffle) shuffle=false;
         else shuffle=true;
@@ -164,18 +180,26 @@ public class MusicService extends Service implements
 
     public void setCurrentSongIndex(int currentSongIndex) {
         this.currentSongIndex = currentSongIndex;
-        this.song = ListElementsArrayList.get(currentSongIndex);
     }
 
     public void playSong() {
+//        appWidgetManager.updateAppWidget();
         showNotification();//TBD
         try {
             player.reset();
-            player.setDataSource(getApplicationContext(), Uri.parse(song.getUri()));
+            player.setDataSource(getApplicationContext(), Uri.parse(getSong().getUri()));
             player.prepareAsync();
         }
         catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);
+        }
+    }
+
+    public void playSongIsPaused() {
+        if(player.isPlaying()) {
+            pause();
+        } else {
+            playSong();
         }
     }
 
@@ -208,7 +232,7 @@ public class MusicService extends Service implements
     }
 
     public Bitmap getSongImage() {
-        return song.getImage();
+        return getSong().getImage();
     }
 
     public boolean isPaused() {
@@ -251,12 +275,12 @@ public class MusicService extends Service implements
 //        this.onNextListener.OnNext();
     }
 
-    public MediaPlayer getPlayer() {
-        return player;
-    }
-
+//    public MediaPlayer getPlayer() {
+//        return player;
+//    }
 
     public void showNotification() {
+        Song song = getSong();
         startForeground(Constants.notificationID,  CustomNotification.getInstance());
         CustomNotification.getInstance().updateNotification(this,
                 song.getArtist(),

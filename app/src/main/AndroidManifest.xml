@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.musicplayer.spanova.spmusicplayer">
 
+    <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -12,33 +20,47 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MusicPlayerActivity"></activity>
-        <activity android:name=".notification.NotificationHelperActivity"
+        <activity android:name=".MusicPlayerActivity" />
+        <activity
+            android:name=".notification.NotificationHelperActivity"
+            android:excludeFromRecents="true"
             android:launchMode="singleTask"
-            android:taskAffinity=""
-            android:excludeFromRecents="true"></activity>
-        <service android:name=".MusicService" />
+            android:taskAffinity="" />
+        <service android:name=".sevice.MusicService" />
+
         <receiver
             android:name=".notification.NotificationReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
-                <action android:name="PLAY"/>
-                <action android:name="NEXT"/>
-                <action android:name="PREV"/>
+                <action android:name="PLAY_PAUSE" />
+                <action android:name="NEXT" />
+                <action android:name="PREV" />
             </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".widget.WidgetReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="PLAY_PAUSE" />
+                <action android:name="NEXT" />
+                <action android:name="PREV" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".widget.NewAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.ACTION_WIDGET_RECEIVER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/new_app_widget_info" />
         </receiver>
     </application>
 
-
-    <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 </manifest>

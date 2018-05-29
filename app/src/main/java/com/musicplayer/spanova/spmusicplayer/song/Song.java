@@ -90,7 +90,7 @@ public class Song implements Serializable {
         this.image = image;
     }
 
-    public Bitmap getImageFromSong( Context ctx) {
+    public Bitmap getImageFromSong(Context ctx) {
         MediaMetadataRetriever  metaRetriver = new MediaMetadataRetriever();
         byte[] art = null;
         Bitmap songImage = Utils.getBitmapFromVectorDrawable(ctx, R.drawable.ic_music_black);
