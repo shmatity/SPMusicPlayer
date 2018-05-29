@@ -86,7 +86,21 @@ public class WidgetReceiver extends MusicEventsReceiver {
                 RemoteViews remoteViews = new RemoteViews(context
                         .getApplicationContext().getPackageName(),
                         R.layout.new_app_widget);
-                remoteViews.setImageViewResource(R.id.repeat, ms.getRepeatImage());
+                remoteViews.setBitmap(R.id.songArt,"sdf" , ms.getSong().getImageFromSong(context));
+                appWidgetManager.updateAppWidget(intent.getExtras().getInt(Constants.widgetID), remoteViews);
+            }
+        });
+        super.setOnUpdateAll(new TaskListener() {
+            @Override
+            public void run(Context context, MusicService ms) {
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+                ComponentName thisWidget = new ComponentName(context.getApplicationContext(), NewAppWidget.class);
+
+                RemoteViews remoteViews = new RemoteViews(context
+                        .getApplicationContext().getPackageName(),
+                        R.layout.new_app_widget);
+                remoteViews.setBitmap(R.id.songArt,"sdf" , ms.getSong().getImageFromSong(context));
+//                remoteViews.setImageViewResource(R.id.songArt, ms.getRepeatImage());
                 appWidgetManager.updateAppWidget(intent.getExtras().getInt(Constants.widgetID), remoteViews);
             }
         });

@@ -11,12 +11,14 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
 import android.util.Log;
+import android.widget.Toast;
 
 //import com.musicplayer.spanova.spmusicplayer.OnNextListener;
 import com.musicplayer.spanova.spmusicplayer.R;
 import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
+import com.musicplayer.spanova.spmusicplayer.utils.Utils;
 
 import java.util.List;
 import java.util.Random;
@@ -39,30 +41,28 @@ public class MusicService extends Service implements
     MediaPlayer.OnCompletionListener onCompletionListener;
     MediaExtractor me;
 //    OnNextListener onNextListener;
-    AppWidgetManager appWidgetManager;
-    int songPosn = 0;
     private boolean shuffle = false;
 
-    Constants.REPEAT repeat = Constants.REPEAT.NONE;
+    int repeat = Constants.REPEAT_NONE;
     private Random rand;
 
     @Override
     public IBinder onBind(Intent arg0) {
-         me = new MediaExtractor(getApplicationContext());
         setSongList(me.GetAllMediaMp3Files());
         return musicBind;
     }
 
     @Override
     public boolean onUnbind(Intent intent){
-        return false;
+        //showNotification();
+        return true;
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if(repeat == Constants.REPEAT.SINGLE) {
+        if(repeat == Constants.REPEAT_SINGLE) {
             playSong();
-        } else if(repeat == Constants.REPEAT.ALL) {
+        } else if(repeat == Constants.REPEAT_ALL) {
             playNext();
         }
         this.onCompletionListener.onCompletion(mp);
@@ -76,7 +76,14 @@ public class MusicService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        showNotification();
         return START_STICKY;
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        Toast.makeText(this,"Service LowMemory",Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -93,10 +100,16 @@ public class MusicService extends Service implements
         }
         initMusicPlayer();
         rand = new Random();
+        me = new MediaExtractor(getApplicationContext());
+//        String data = Utils.readFromFile(getApplicationContext());
+//        me.getMediaFileByID(Utils.unpackID(data));
+//        shuffle = Utils.unpackShuffle(data);
+//        repeat = Utils.unpackRepeat(data);
     }
 
     public void onDestroy(){
         super.onDestroy();
+       // Utils.writeToFile(Utils.prepareData(getSong().getId(), shuffle, repeat), getApplicationContext());
         player.stop();
         player.release();
         player = null;
@@ -155,19 +168,19 @@ public class MusicService extends Service implements
     }
 
     public void setRepeat() {
-        if(repeat == Constants.REPEAT.NONE) {
-            repeat = Constants.REPEAT.ALL;
-        } else if(repeat == Constants.REPEAT.ALL) {
-            repeat = Constants.REPEAT.SINGLE;
-        } else if(repeat == Constants.REPEAT.SINGLE) {
-            repeat = Constants.REPEAT.NONE;
+        if(repeat == Constants.REPEAT_NONE) {
+            repeat = Constants.REPEAT_ALL;
+        } else if(repeat == Constants.REPEAT_ALL) {
+            repeat = Constants.REPEAT_SINGLE;
+        } else if(repeat == Constants.REPEAT_SINGLE) {
+            repeat = Constants.REPEAT_NONE;
         } else {
-            repeat = Constants.REPEAT.NONE;
+            repeat = Constants.REPEAT_NONE;
         }
     }
 
     public  int getRepeatImage() {
-        return repeat.getDrowable();
+        return Utils.getRepeatIcon(repeat);
     }
 
     public Song getSong() {
@@ -183,8 +196,6 @@ public class MusicService extends Service implements
     }
 
     public void playSong() {
-//        appWidgetManager.updateAppWidget();
-        showNotification();//TBD
         try {
             player.reset();
             player.setDataSource(getApplicationContext(), Uri.parse(getSong().getUri()));
@@ -241,7 +252,7 @@ public class MusicService extends Service implements
 
     public void playPrev(){
         int currentIndex = 0;
-        if(repeat == Constants.REPEAT.SINGLE) {
+        if(repeat == Constants.REPEAT_SINGLE) {
             playSong();
             return;
         }
@@ -259,7 +270,7 @@ public class MusicService extends Service implements
 
     public void playNext(){
         int currentIndex = 0;
-        if(repeat == Constants.REPEAT.SINGLE) {
+        if(repeat == Constants.REPEAT_SINGLE) {
             playSong();
             return;
         }
@@ -272,12 +283,7 @@ public class MusicService extends Service implements
         }
         setCurrentSongIndex(currentIndex);
         playSong();
-//        this.onNextListener.OnNext();
     }
-
-//    public MediaPlayer getPlayer() {
-//        return player;
-//    }
 
     public void showNotification() {
         Song song = getSong();
@@ -288,6 +294,8 @@ public class MusicService extends Service implements
                 R.drawable.ic_format_list_bulleted_black_24dp,
                 song.getImageFromSong(this),
                 player.isPlaying());
+
+
     }
 
 }

@@ -17,37 +17,41 @@ public class Constants {
     public static String SHUFFLE_ACTION = "SHUFFLE";
     public static String REPEAT_ACTION = "REPEAT";
     public static String ART_CLICKED_ACTION = "ART_CLICKED";
+    public static String UPDATE_ALL_ACTION = "UPDATE_ALL";
     public static String widgetID = "WIDGET_ID";//AppWidgetManager.EXTRA_APPWIDGET_ID;;
 
-    public enum REPEAT {
-        NONE(R.drawable.ic_repeat_gray, 0),
-        ALL(R.drawable.ic_repeat_black, 1),
-        SINGLE(R.drawable.ic_repeat_one_black, 2);
-
-        public int getDrowable() {
-            return drowable;
-        }
-
-        public void setDrowable(int drowable) {
-            this.drowable = drowable;
-        }
-
-        private int drowable;
-        private int index;
-
-        public int getIndex() {
-            return index;
-        }
-
-        public void setIndex(int index) {
-            this.index = index;
-        }
-
-        REPEAT(int drowable, int index) {
-            this.drowable = drowable;
-            this.index = index;
-        }
-    };
+    public static int REPEAT_NONE = 0;
+    public static int REPEAT_ALL = 1;
+    public static int REPEAT_SINGLE = 2;
+//    public enum REPEAT {
+//        NONE(R.drawable.ic_repeat_gray, 0),
+//        ALL(R.drawable.ic_repeat_black, 1),
+//        SINGLE(R.drawable.ic_repeat_one_black, 2);
+//
+//        public int getDrowable() {
+//            return drowable;
+//        }
+//
+//        public void setDrowable(int drowable) {
+//            this.drowable = drowable;
+//        }
+//
+//        private int drowable;
+//        private int index;
+//
+//        public int getIndex() {
+//            return index;
+//        }
+//
+//        public void setIndex(int index) {
+//            this.index = index;
+//        }
+//
+//        REPEAT(int drowable, int index) {
+//            this.drowable = drowable;
+//            this.index = index;
+//        }
+//    };
 
     public static SortOption[] sortOptions = new SortOption[] {
             new SortOption(0, "Title", MediaStore.Audio.Media.TITLE + " ASC"),

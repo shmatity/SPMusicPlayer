@@ -50,6 +50,10 @@ public class Song implements Serializable {
         this.uri = uri;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public String getTitle() {
         return title;
     }

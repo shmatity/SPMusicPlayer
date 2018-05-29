@@ -20,6 +20,7 @@ public class MusicEventsReceiver extends BroadcastReceiver {
     TaskListener onShuffle;
     TaskListener onRepeat;
     TaskListener onArtClicked;
+    TaskListener onUpdateAll;
 
 
     public void setOnPlayPause(TaskListener onPlayPause) {
@@ -44,6 +45,10 @@ public class MusicEventsReceiver extends BroadcastReceiver {
 
     public void setOnArtCliced(TaskListener onArtClicked) {
         this.onArtClicked = onArtClicked;
+    }
+
+    public void setOnUpdateAll(TaskListener onUpdateAll) {
+        this.onUpdateAll = onUpdateAll;
     }
 
     private ServiceConnection musicConnection = new ServiceConnection() {
@@ -75,6 +80,8 @@ public class MusicEventsReceiver extends BroadcastReceiver {
                 onRepeat.run(context,musicSrv);
             } else if(Constants.ART_CLICKED_ACTION.equals(action)) {
                 onArtClicked.run(context, musicSrv);
+            } else if(Constants.UPDATE_ALL_ACTION.equals(action)) {
+                onUpdateAll.run(context, musicSrv);
             } else {
                 new Error("WE ARE FUCKED! NOT SUCK ACTION");
             }

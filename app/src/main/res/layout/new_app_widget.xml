@@ -2,17 +2,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#09C"
-    android:padding="@dimen/widget_margin">
+    android:padding="@dimen/widget_margin"
+    android:orientation="horizontal">
+
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/controls"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
         android:layout_margin="10px"
+        android:layout_alignParentLeft="true"
         android:orientation="horizontal">
-
         <ImageButton
             android:id="@+id/shuffle"
             android:layout_width="wrap_content"
@@ -52,13 +54,13 @@
             android:layout_weight="1"
             android:layout_toRightOf="@+id/next" />
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:id="@+id/songArt"
-            android:layout_weight="1"
-            android:src="@drawable/ic_music_black"
-            android:layout_toRightOf="@+id/repeat"
-            android:layout_height="wrap_content"/>
     </LinearLayout>
-
+    <ImageView
+        android:layout_width="wrap_content"
+        android:id="@+id/songArt"
+        android:layout_weight="3"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_music_black"
+        android:layout_toRightOf="@+id/controls"
+        android:layout_height="match_parent"/>
 </RelativeLayout>
