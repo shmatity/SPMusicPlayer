@@ -3,18 +3,12 @@ package com.musicplayer.spanova.spmusicplayer.widget;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.widget.RemoteViews;
 
-import com.musicplayer.spanova.spmusicplayer.MusicPlayerActivity;
-import com.musicplayer.spanova.spmusicplayer.notification.NotificationReceiver;
 import com.musicplayer.spanova.spmusicplayer.sevice.MusicService;
 import com.musicplayer.spanova.spmusicplayer.R;
-import com.musicplayer.spanova.spmusicplayer.receiver.MusicEventsReceiver;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
 
 /**
@@ -24,13 +18,10 @@ public class NewAppWidget extends AppWidgetProvider {
 
     private static final int INTENT_FLAGS = PendingIntent.FLAG_UPDATE_CURRENT;
     private static final int REQUEST_CODE = 0;
+    private WidgetReceiver widgetReceiver;
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
-
-
-//        Context c = context.getApplicationContext();
-//        c.registerReceiver(this, filter1);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
 
         Intent shuffleIntent = new Intent(context, WidgetReceiver.class);
@@ -47,10 +38,10 @@ public class NewAppWidget extends AppWidgetProvider {
                 context, REQUEST_CODE, playPauseIntent, INTENT_FLAGS);
         views.setOnClickPendingIntent(R.id.playPause, playPausePendingIntent);
 
-        Intent prevIntent = new Intent(context, WidgetReceiver.class);
+        Intent prevIntent = new Intent(context, MusicService.class);
         prevIntent.setAction(Constants.PREV_ACTION);
         prevIntent.putExtra(Constants.widgetID, appWidgetId);
-        PendingIntent prevPendingIntent = PendingIntent.getBroadcast(
+        PendingIntent prevPendingIntent = PendingIntent.getService(
                 context, REQUEST_CODE, prevIntent, INTENT_FLAGS);
         views.setOnClickPendingIntent(R.id.prev, prevPendingIntent);
 
@@ -74,6 +65,7 @@ public class NewAppWidget extends AppWidgetProvider {
         PendingIntent artPendingIntent = PendingIntent.getBroadcast(
                 context, REQUEST_CODE, artIntent, INTENT_FLAGS);
         views.setOnClickPendingIntent(R.id.songArt, artPendingIntent);
+
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
@@ -81,22 +73,21 @@ public class NewAppWidget extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
         super.onUpdate(context, appWidgetManager, appWidgetIds);
-
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
         Intent updateAll = new Intent(context, WidgetReceiver.class);
         updateAll.setAction(Constants.UPDATE_ALL_ACTION);
-        context.sendBroadcast(updateAll );
+        updateAll.putExtra(Constants.widgetID, appWidgetIds);
+        context.sendBroadcast(updateAll);
 //        views.setOnClickPendingIntent(R.id.songArt, updateAllPendingIntent);
 //        appWidgetManager.updateAppWidget(appWidgetIds, views);
 
-//        for (int appWidgetId : appWidgetIds) {
-//            updateAppWidget(context, appWidgetManager, appWidgetId);
-//        }
+        for (int appWidgetId : appWidgetIds) {
+            updateAppWidget(context, appWidgetManager, appWidgetId);
+        }
     }
 
     @Override
     public void onEnabled(Context context) {
-
         // Enter relevant functionality for when the first widget is created
     }
 

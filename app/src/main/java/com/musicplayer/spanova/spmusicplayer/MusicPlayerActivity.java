@@ -90,7 +90,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
             song = musicSrv.getSong();
 
             initializeSong();
-            musicSrv.playSong();
+            if(!musicSrv.isPlaying()) musicSrv.playSong();
         }
 
         @Override
@@ -108,9 +108,8 @@ public class MusicPlayerActivity extends AppCompatActivity {
         handler = new Handler();
         if( playIntent == null ){
             playIntent = new Intent(context, MusicService.class);
-            startService(playIntent);
+            //startService(playIntent);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-
         }
     }
 

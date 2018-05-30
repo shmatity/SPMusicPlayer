@@ -18,40 +18,27 @@ public class Constants {
     public static String REPEAT_ACTION = "REPEAT";
     public static String ART_CLICKED_ACTION = "ART_CLICKED";
     public static String UPDATE_ALL_ACTION = "UPDATE_ALL";
+    public static String STOP_ACTION = "STOP";
+    //WIDGET ACTIONS
+    public static String WIDGET_TAG = "_WIDGET";
+    public static String WIDGET_UPDATE_ALL_ACTION = "STOP_WIDGET";
+    public static String WIDGET_PLAY_PAUSE_ACTION = "PLAY_PAUSE_WIDGET";
+    public static String WIDGET_PREV_ACTION = "PREV_WIDGET";
+    public static String WIDGET_NEXT_ACTION = "NEXT_WIDGET";
+    public static String WIDGET_SHUFFLE_ACTION = "SHUFFLE_WIDGET";
+    public static String WIDGET_REPEAT_ACTION = "REPEAT_WIDGET";
+    //NOTIFICATION ACTIONS
+    public static String NOTIFICATION_TAG = "_NOTIFICATION";
+    public static String NOTIFICATION_STOP_ACTION = "STOP_NOTIFICATION";
+    public static String NOTIFICATION_PLAY_PAUSE_ACTION = "PLAY_PAUSE_NOTIFICATION";
+    public static String NOTIFICATION_PREV_ACTION = "PREV_NOTIFICATION";
+    public static String NOTIFICATION_NEXT_ACTION = "NEXT_NOTIFICATION";
+
     public static String widgetID = "WIDGET_ID";//AppWidgetManager.EXTRA_APPWIDGET_ID;;
 
     public static int REPEAT_NONE = 0;
     public static int REPEAT_ALL = 1;
     public static int REPEAT_SINGLE = 2;
-//    public enum REPEAT {
-//        NONE(R.drawable.ic_repeat_gray, 0),
-//        ALL(R.drawable.ic_repeat_black, 1),
-//        SINGLE(R.drawable.ic_repeat_one_black, 2);
-//
-//        public int getDrowable() {
-//            return drowable;
-//        }
-//
-//        public void setDrowable(int drowable) {
-//            this.drowable = drowable;
-//        }
-//
-//        private int drowable;
-//        private int index;
-//
-//        public int getIndex() {
-//            return index;
-//        }
-//
-//        public void setIndex(int index) {
-//            this.index = index;
-//        }
-//
-//        REPEAT(int drowable, int index) {
-//            this.drowable = drowable;
-//            this.index = index;
-//        }
-//    };
 
     public static SortOption[] sortOptions = new SortOption[] {
             new SortOption(0, "Title", MediaStore.Audio.Media.TITLE + " ASC"),

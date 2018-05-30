@@ -19,6 +19,7 @@ import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
 import com.musicplayer.spanova.spmusicplayer.utils.Utils;
+import com.musicplayer.spanova.spmusicplayer.widget.WidgetReceiver;
 
 import java.util.List;
 import java.util.Random;
@@ -38,8 +39,9 @@ public class MusicService extends Service implements
     private List<Song> ListElementsArrayList;
     private final IBinder musicBind = new MusicBinder();
     MediaPlayer.OnPreparedListener onPreparedListener;
-    MediaPlayer.OnCompletionListener onCompletionListener;
+    MediaPlayer.OnCompletionListener onCompletionListener = null;
     MediaExtractor me;
+    WidgetReceiver widgetReceiver;
 //    OnNextListener onNextListener;
     private boolean shuffle = false;
 
@@ -65,6 +67,7 @@ public class MusicService extends Service implements
         } else if(repeat == Constants.REPEAT_ALL) {
             playNext();
         }
+        if(onCompletionListener!= null)
         this.onCompletionListener.onCompletion(mp);
     }
 
@@ -76,7 +79,7 @@ public class MusicService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        showNotification();
+        startForeground(Constants.notificationID,  CustomNotification.getInstance());
         return START_STICKY;
     }
 
@@ -196,6 +199,7 @@ public class MusicService extends Service implements
     }
 
     public void playSong() {
+        showNotification();
         try {
             player.reset();
             player.setDataSource(getApplicationContext(), Uri.parse(getSong().getUri()));
@@ -206,7 +210,7 @@ public class MusicService extends Service implements
         }
     }
 
-    public void playSongIsPaused() {
+    public void playPauseSong() {
         if(player.isPlaying()) {
             pause();
         } else {
@@ -223,6 +227,7 @@ public class MusicService extends Service implements
     }
 
     public void pause(){
+        showNotification();
         player.pause();
     }
 
@@ -287,7 +292,6 @@ public class MusicService extends Service implements
 
     public void showNotification() {
         Song song = getSong();
-        startForeground(Constants.notificationID,  CustomNotification.getInstance());
         CustomNotification.getInstance().updateNotification(this,
                 song.getArtist(),
                 song.getTitle(),

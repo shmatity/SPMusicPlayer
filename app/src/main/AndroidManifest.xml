@@ -36,9 +36,12 @@
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
-                <action android:name="PLAY_PAUSE" />
-                <action android:name="NEXT" />
-                <action android:name="PREV" />
+                <action android:name="PLAY_PAUSE_NOTIFICATION" />
+                <action android:name="NEXT_NOTIFICATION" />
+                <action android:name="PREV_NOTIFICATION" />
+                <action android:name="SHUFFLE_NOTIFICATION" />
+                <action android:name="REPEAT_NOTIFICATION" />
+                <action android:name="STOP_NOTIFICATION" />
             </intent-filter>
         </receiver>
         <receiver
@@ -46,9 +49,12 @@
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
-                <action android:name="PLAY_PAUSE" />
-                <action android:name="NEXT" />
-                <action android:name="PREV" />
+                <action android:name="PLAY_PAUSE_WIDGET" />
+                <action android:name="NEXT_WIDGET" />
+                <action android:name="PREV_WIDGET" />
+                <action android:name="SHUFFLE_WIDGET" />
+                <action android:name="REPEAT_WIDGET" />
+                <action android:name="UPDATE_ALL_WIDGET" />
             </intent-filter>
         </receiver>
         <receiver android:name=".widget.NewAppWidget">

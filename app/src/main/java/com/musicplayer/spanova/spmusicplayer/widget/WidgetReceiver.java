@@ -1,123 +1,79 @@
 package com.musicplayer.spanova.spmusicplayer.widget;
 
 import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.musicplayer.spanova.spmusicplayer.R;
-import com.musicplayer.spanova.spmusicplayer.receiver.MusicEventsReceiver;
+import com.musicplayer.spanova.spmusicplayer.receiver.MusicEventsReceiverHelper;
 import com.musicplayer.spanova.spmusicplayer.sevice.MusicService;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
 import com.musicplayer.spanova.spmusicplayer.receiver.TaskListener;
 
-public class WidgetReceiver extends MusicEventsReceiver {
+public class WidgetReceiver extends BroadcastReceiver {
+    MusicEventsReceiverHelper musicEventsReceiverHelper = MusicEventsReceiverHelper.getInstance();
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        super.onReceive(context,intent);
-
-        super.setOnNext(new TaskListener() {
+        musicEventsReceiverHelper.setOnNext(new TaskListener() {
             @Override
             public void run(Context context, MusicService ms) {
 
             }
         });
-        super.setOnPlayPause(new TaskListener() {
-            @Override
-            public void run(Context context, MusicService ms) {
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
-                ComponentName thisWidget = new ComponentName(context.getApplicationContext(), NewAppWidget.class);
-
-                RemoteViews remoteViews = new RemoteViews(context
-                        .getApplicationContext().getPackageName(),
-                        R.layout.new_app_widget);
-                if(ms.isPlaying()) {
-                    remoteViews.setImageViewResource(R.id.playPause, R.drawable.ic_play_black);
-                } else {
-                    remoteViews.setImageViewResource(R.id.playPause, R.drawable.ic_pause_black);
-                }
-                appWidgetManager.updateAppWidget(intent.getExtras().getInt(Constants.widgetID), remoteViews);
-            }
-        });
-        super.setOnPrev(new TaskListener() {
+        musicEventsReceiverHelper.setOnPlayPause(new TaskListener() {
             @Override
             public void run(Context context, MusicService ms) {
 
             }
         });
-        super.setOnShuffle(new TaskListener() {
+        musicEventsReceiverHelper.setOnPrev(new TaskListener() {
             @Override
             public void run(Context context, MusicService ms) {
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
-                ComponentName thisWidget = new ComponentName(context.getApplicationContext(), NewAppWidget.class);
-
-                RemoteViews remoteViews = new RemoteViews(context
-                        .getApplicationContext().getPackageName(),
-                        R.layout.new_app_widget);
-                if(ms.getShuffle()) {
-                    remoteViews.setImageViewResource(R.id.shuffle, R.drawable.ic_shuffle_black);
-                } else {
-                    remoteViews.setImageViewResource(R.id.shuffle, R.drawable.ic_shuffle_gray);
-                }
-                appWidgetManager.updateAppWidget(intent.getExtras().getInt(Constants.widgetID), remoteViews);
 
             }
         });
-        super.setOnRepeat(new TaskListener() {
+        musicEventsReceiverHelper.setOnShuffle(new TaskListener() {
             @Override
             public void run(Context context, MusicService ms) {
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
-                ComponentName thisWidget = new ComponentName(context.getApplicationContext(), NewAppWidget.class);
 
-                RemoteViews remoteViews = new RemoteViews(context
-                        .getApplicationContext().getPackageName(),
-                        R.layout.new_app_widget);
-                    remoteViews.setImageViewResource(R.id.repeat, ms.getRepeatImage());
-                appWidgetManager.updateAppWidget(intent.getExtras().getInt(Constants.widgetID), remoteViews);
+
             }
         });
-        super.setOnArtCliced(new TaskListener() {
+        musicEventsReceiverHelper.setOnRepeat(new TaskListener() {
             @Override
             public void run(Context context, MusicService ms) {
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
-                ComponentName thisWidget = new ComponentName(context.getApplicationContext(), NewAppWidget.class);
 
-                RemoteViews remoteViews = new RemoteViews(context
-                        .getApplicationContext().getPackageName(),
-                        R.layout.new_app_widget);
-                remoteViews.setBitmap(R.id.songArt,"sdf" , ms.getSong().getImageFromSong(context));
-                appWidgetManager.updateAppWidget(intent.getExtras().getInt(Constants.widgetID), remoteViews);
             }
         });
-        super.setOnUpdateAll(new TaskListener() {
+        musicEventsReceiverHelper.setOnArtCliced(new TaskListener() {
             @Override
             public void run(Context context, MusicService ms) {
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
-                ComponentName thisWidget = new ComponentName(context.getApplicationContext(), NewAppWidget.class);
 
-                RemoteViews remoteViews = new RemoteViews(context
-                        .getApplicationContext().getPackageName(),
-                        R.layout.new_app_widget);
-                remoteViews.setBitmap(R.id.songArt,"sdf" , ms.getSong().getImageFromSong(context));
-//                remoteViews.setImageViewResource(R.id.songArt, ms.getRepeatImage());
-                appWidgetManager.updateAppWidget(intent.getExtras().getInt(Constants.widgetID), remoteViews);
             }
         });
+        musicEventsReceiverHelper.setOnUpdateAll(new TaskListener() {
+            @Override
+            public void run(Context context, MusicService ms) {
+
+
+            }
+        });
+
+        musicEventsReceiverHelper.onReceive(context,intent.getAction().replace(Constants.WIDGET_TAG, ""));
     }
 
     public void updateWidget(Context context) {
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
-        ComponentName thisWidget = new ComponentName(context.getApplicationContext(), NewAppWidget.class);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
-        if (appWidgetIds != null && appWidgetIds.length > 0) {
-            for (int widgetId : appWidgetIds) {
-                RemoteViews remoteViews = new RemoteViews(context
-                        .getApplicationContext().getPackageName(),
-                        R.layout.new_app_widget);
-//                remoteViews.setImageViewResource(R.id.playPause, );
-                appWidgetManager.updateAppWidget(widgetId, remoteViews);
-            }
-        }
+//        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+//        ComponentName thisWidget = new ComponentName(context.getApplicationContext(), NewAppWidget.class);
+//
+//        RemoteViews remoteViews = new RemoteViews(context
+//                .getApplicationContext().getPackageName(),
+//                R.layout.new_app_widget);
+//        remoteViews.setBitmap(R.id.songArt,"sdf" , ms.getSong().getImageFromSong(context));
+//        remoteViews.setString(R.id.songTitle,"sdf" , ms.getSong().getTitle());
+//        remoteViews.setString(R.id.songArtist,"sdf" , ms.getSong().getArtist());
     }
 }

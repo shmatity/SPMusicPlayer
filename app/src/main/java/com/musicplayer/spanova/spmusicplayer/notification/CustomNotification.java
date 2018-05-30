@@ -36,13 +36,18 @@ public class CustomNotification extends Notification {
         Intent intent = new Intent(ctx, MusicPlayerActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(ctx, (int)System.currentTimeMillis(), intent, 0);
 
+        Intent deleteIntent = new Intent(ctx, NotificationReceiver.class);
+        deleteIntent.setAction(Constants.NOTIFICATION_STOP_ACTION);
+        PendingIntent deletePendingIntent = PendingIntent.getBroadcast(ctx, 0, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         Builder builder = new Builder(ctx);
         builder.setContentText(title);
         builder.setContentIntent(pIntent);
         builder.setContentTitle(message);
         builder.setSmallIcon(icon);
-        builder.setLargeIcon(image);
         builder.setOngoing(true);
+        builder.setDeleteIntent(deletePendingIntent);
+        builder.setLargeIcon(image);
         setActions(builder);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder.setStyle(new MediaStyle().setShowActionsInCompactView(2, 0, 1));
@@ -57,9 +62,9 @@ public class CustomNotification extends Notification {
     }
 
     public void setActions( Notification.Builder builder) {
-        Intent playIntent = new Intent(Constants.PLAY_PAUSE_ACTION);
-        Intent nextIntent = new Intent(Constants.NEXT_ACTION);
-        Intent prevIntent = new Intent(Constants.PREV_ACTION);
+        Intent playIntent = new Intent(Constants.NOTIFICATION_PLAY_PAUSE_ACTION);
+        Intent nextIntent = new Intent(Constants.NOTIFICATION_NEXT_ACTION);
+        Intent prevIntent = new Intent(Constants.NOTIFICATION_PREV_ACTION);
         PendingIntent playPendingIntent = PendingIntent.getBroadcast(ctx, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent nextPendingIntent = PendingIntent.getBroadcast(ctx, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent prevPendingIntent = PendingIntent.getBroadcast(ctx, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT);
