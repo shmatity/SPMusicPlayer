@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Utils {
 
@@ -47,6 +49,15 @@ public class Utils {
             return R.drawable.ic_repeat_one_black;
         }
         return  R.drawable.ic_repeat_gray;
+    }
+
+    public static String[] generateSortSpinnerOptions() {
+        List<String> listResult = new ArrayList<String>();
+        for (SortOption option : Constants.sortOptions) {
+            listResult.add(option.getTitle());
+        }
+        String[] result = new String[listResult.size()];
+        return listResult.toArray(result);
     }
 
     public static String prepareData(int id, boolean shuffle, int repeat) {

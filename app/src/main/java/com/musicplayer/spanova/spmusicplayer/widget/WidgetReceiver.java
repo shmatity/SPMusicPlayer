@@ -15,8 +15,10 @@ import com.musicplayer.spanova.spmusicplayer.receiver.TaskListener;
 
 public class WidgetReceiver extends BroadcastReceiver {
     MusicEventsReceiverHelper musicEventsReceiverHelper = MusicEventsReceiverHelper.getInstance();
+
     @Override
     public void onReceive(final Context context, final Intent intent) {
+
         musicEventsReceiverHelper.setOnNext(new TaskListener() {
             @Override
             public void run(Context context, MusicService ms) {
@@ -26,7 +28,13 @@ public class WidgetReceiver extends BroadcastReceiver {
         musicEventsReceiverHelper.setOnPlayPause(new TaskListener() {
             @Override
             public void run(Context context, MusicService ms) {
-
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+                RemoteViews remoteViews = new RemoteViews(context.getApplicationContext().getPackageName(), R.layout.new_app_widget);
+                if (ms.isPlaying()) {
+                    remoteViews.setImageViewResource(R.id.playPause, R.drawable.ic_pause_black);
+                } else {
+                    remoteViews.setImageViewResource(R.id.playPause,R.drawable.ic_play_black);
+                }
             }
         });
         musicEventsReceiverHelper.setOnPrev(new TaskListener() {
@@ -57,8 +65,12 @@ public class WidgetReceiver extends BroadcastReceiver {
         musicEventsReceiverHelper.setOnUpdateAll(new TaskListener() {
             @Override
             public void run(Context context, MusicService ms) {
-
-
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+                RemoteViews remoteViews = new RemoteViews(context.getApplicationContext().getPackageName(), R.layout.new_app_widget);
+                    remoteViews.setImageViewBitmap(R.id.songArt,ms.getSong().getImageFromSong(context));
+                remoteViews.setTextViewText(R.id.songTitle,ms.getSong().getTitle());
+                remoteViews.setTextViewText(R.id.songArtist,ms.getSong().getArtist());
+                appWidgetManager.updateAppWidget(intent.getExtras().getIntArray(Constants.widgetID)[0],remoteViews);
             }
         });
 

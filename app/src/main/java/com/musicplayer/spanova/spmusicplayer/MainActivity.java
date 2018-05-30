@@ -26,20 +26,20 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.musicplayer.spanova.spmusicplayer.album.AlbumFragment;
 import com.musicplayer.spanova.spmusicplayer.artist.ArtistFragment;
 import com.musicplayer.spanova.spmusicplayer.song.SongsFragment;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
 import com.musicplayer.spanova.spmusicplayer.utils.SortOption;
+import com.musicplayer.spanova.spmusicplayer.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mTextMessage;
-    public static final int RUNTIME_PERMISSION_CODE = 7;
     Context context;
     String searchedText = "";
     int sortOption = 0;
@@ -51,10 +51,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             Spinner sortSpinner = (Spinner) findViewById(R.id.spinner);
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, Constants.generateSortSpinnerOptions());
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, Utils.generateSortSpinnerOptions());
             adapter.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
             sortSpinner.setAdapter(adapter);
-//            sortSpinner.se
+
             sortSpinner.setOnItemSelectedListener(onSpinnerItemSelected);
 
             currentItem = item.getItemId();
@@ -68,13 +68,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         ImageButton im = (ImageButton) findViewById(R.id.searchButton);
         im.setOnClickListener(searchButtonOnClickListener);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         context = getApplicationContext();
@@ -83,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void refresh () {
+    public void refresh() {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (currentItem == R.id.navigation_songs) {
             Bundle bundle = new Bundle();
@@ -116,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                             ActivityCompat.requestPermissions(
                                     MainActivity.this,
                                     new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
-                                    RUNTIME_PERMISSION_CODE);
+                                    Constants.RUNTIME_PERMISSION_CODE);
                         }
                     });
 
@@ -128,10 +126,10 @@ public class MainActivity extends AppCompatActivity {
                     ActivityCompat.requestPermissions(
                             MainActivity.this,
                             new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            RUNTIME_PERMISSION_CODE);
+                            Constants.RUNTIME_PERMISSION_CODE);
                 }
             } else {
-
+                //GO BABY GO!
             }
         }
     }
@@ -141,12 +139,12 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode) {
 
-            case RUNTIME_PERMISSION_CODE: {
+            case Constants.RUNTIME_PERMISSION_CODE: {
 
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                    // <3
                 } else {
-
+                    Toast.makeText(context, "Are You Sure MF?", Toast.LENGTH_SHORT);
                 }
             }
         }
@@ -156,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             sortOption = position;
-            ((TextView)view).setText(null);
+            ((TextView) view).setText("");
             refresh();
         }
 

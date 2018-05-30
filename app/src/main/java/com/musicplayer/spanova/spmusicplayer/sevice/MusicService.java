@@ -34,19 +34,16 @@ public class MusicService extends Service implements
         }
     }
 
-    private MediaPlayer player;
-    private int currentSongIndex = 0;
+    boolean shuffle = false;
+    int repeat = Constants.REPEAT_NONE;
+    Random rand;
+    MediaPlayer player;
+    int currentSongIndex = 0;
     private List<Song> ListElementsArrayList;
-    private final IBinder musicBind = new MusicBinder();
+    final IBinder musicBind = new MusicBinder();
     MediaPlayer.OnPreparedListener onPreparedListener;
     MediaPlayer.OnCompletionListener onCompletionListener = null;
     MediaExtractor me;
-    WidgetReceiver widgetReceiver;
-//    OnNextListener onNextListener;
-    private boolean shuffle = false;
-
-    int repeat = Constants.REPEAT_NONE;
-    private Random rand;
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -55,47 +52,50 @@ public class MusicService extends Service implements
     }
 
     @Override
-    public boolean onUnbind(Intent intent){
-        //showNotification();
+    public boolean onUnbind(Intent intent) {
         return true;
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if(repeat == Constants.REPEAT_SINGLE) {
+        if (repeat == Constants.REPEAT_SINGLE) {
             playSong();
-        } else if(repeat == Constants.REPEAT_ALL) {
+        } else if (repeat == Constants.REPEAT_ALL) {
             playNext();
         }
-        if(onCompletionListener!= null)
-        this.onCompletionListener.onCompletion(mp);
+        if (onCompletionListener != null)
+            this.onCompletionListener.onCompletion(mp);
+        showNotification();
     }
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
+        Toast.makeText(this, "SHIT HAPPEND! PLEASE CONTACT SOFKA!", Toast.LENGTH_LONG).show();
         Log.e("MUSIC SERVICE", "Error setting data source");
         return false;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startForeground(Constants.notificationID,  CustomNotification.getInstance());
+        startForeground(Constants.notificationID, CustomNotification.getInstance());
         return START_STICKY;
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        Toast.makeText(this,"Service LowMemory",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Bro! Delete something!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        this.onPreparedListener.onPrepared(mp);
+        if(onPreparedListener!= null) this.onPreparedListener.onPrepared(mp);
         mp.start();
+        showNotification();
     }
 
-    public void onCreate(){
+    @Override
+    public void onCreate() {
         super.onCreate();
         if (player != null) {
             player.stop();
@@ -105,14 +105,15 @@ public class MusicService extends Service implements
         rand = new Random();
         me = new MediaExtractor(getApplicationContext());
 //        String data = Utils.readFromFile(getApplicationContext());
-//        me.getMediaFileByID(Utils.unpackID(data));
+//        me.getSongById(Utils.unpackID(data));
 //        shuffle = Utils.unpackShuffle(data);
 //        repeat = Utils.unpackRepeat(data);
     }
 
-    public void onDestroy(){
+    @Override
+    public void onDestroy() {
         super.onDestroy();
-       // Utils.writeToFile(Utils.prepareData(getSong().getId(), shuffle, repeat), getApplicationContext());
+        // Utils.writeToFile(Utils.prepareData(getSong().getId(), shuffle, repeat), getApplicationContext());
         player.stop();
         player.release();
         player = null;
@@ -126,11 +127,7 @@ public class MusicService extends Service implements
         this.onCompletionListener = onCompletionListener;
     }
 
-//    public void setOnNextListener(OnNextListener listener) {
-//        this.onNextListener = listener;
-//    }
-
-    public void initMusicPlayer(){
+    public void initMusicPlayer() {
         player = new MediaPlayer();
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -147,43 +144,43 @@ public class MusicService extends Service implements
         ListElementsArrayList = listElementsArrayList;
     }
 
-
     public void setSortOption(int sortOption) {
-        if(me.getSortIndex() != sortOption) {
-            me.setSortIndex(sortOption);setSongList(me.GetAllMediaMp3Files());
+        if (me.getSortIndex() != sortOption) {
+            me.setSortIndex(sortOption);
+            setSongList(me.GetAllMediaMp3Files());
         }
     }
 
     public void setSearch(String search) {
-        if(!me.getSearch().equals(search)) {
+        if (!me.getSearch().equals(search)) {
             me.setSearch(search);
             setSongList(me.GetAllMediaMp3Files());
         }
     }
 
-    public void setShuffle(){
-        if(shuffle) shuffle=false;
-        else shuffle=true;
+    public void setShuffle() {
+        if (shuffle) shuffle = false;
+        else shuffle = true;
     }
 
-    public boolean getShuffle(){
+    public boolean getShuffle() {
         return shuffle;
     }
 
     public void setRepeat() {
-        if(repeat == Constants.REPEAT_NONE) {
+        if (repeat == Constants.REPEAT_NONE) {
             repeat = Constants.REPEAT_ALL;
-        } else if(repeat == Constants.REPEAT_ALL) {
+        } else if (repeat == Constants.REPEAT_ALL) {
             repeat = Constants.REPEAT_SINGLE;
-        } else if(repeat == Constants.REPEAT_SINGLE) {
+        } else if (repeat == Constants.REPEAT_SINGLE) {
             repeat = Constants.REPEAT_NONE;
         } else {
             repeat = Constants.REPEAT_NONE;
         }
     }
 
-    public  int getRepeatImage() {
-        return Utils.getRepeatIcon(repeat);
+    public int getRepeat() {
+        return repeat;
     }
 
     public Song getSong() {
@@ -199,39 +196,29 @@ public class MusicService extends Service implements
     }
 
     public void playSong() {
-        showNotification();
         try {
             player.reset();
             player.setDataSource(getApplicationContext(), Uri.parse(getSong().getUri()));
             player.prepareAsync();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
     }
 
-    public void playPauseSong() {
-        if(player.isPlaying()) {
-            pause();
-        } else {
-            playSong();
-        }
-    }
-
-    public boolean isPlaying(){
+    public boolean isPlaying() {
         return player.isPlaying();
     }
 
-    public void start(){
+    public void start() {
         player.start();
     }
 
-    public void pause(){
-        showNotification();
+    public void pause() {
         player.pause();
+        showNotification();
     }
 
-    public void stop(){
+    public void stop() {
         player.stop();
     }
 
@@ -255,13 +242,13 @@ public class MusicService extends Service implements
         return !player.isPlaying() && player.getCurrentPosition() > 1;
     }
 
-    public void playPrev(){
+    public void playPrev() {
         int currentIndex = 0;
-        if(repeat == Constants.REPEAT_SINGLE) {
+        if (repeat == Constants.REPEAT_SINGLE) {
             playSong();
             return;
         }
-        if(shuffle){
+        if (shuffle) {
             currentIndex = rand.nextInt(getSongList().size());
         } else {
             if (getCurrentSongIndex() > 0) {
@@ -273,13 +260,13 @@ public class MusicService extends Service implements
 
     }
 
-    public void playNext(){
+    public void playNext() {
         int currentIndex = 0;
-        if(repeat == Constants.REPEAT_SINGLE) {
+        if (repeat == Constants.REPEAT_SINGLE) {
             playSong();
             return;
         }
-        if(shuffle){
+        if (shuffle) {
             currentIndex = rand.nextInt(getSongList().size());
         } else {
             if (getSongList().size() > getCurrentSongIndex()) {

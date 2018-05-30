@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.MediaPlayer;
 import android.os.IBinder;
 
 import com.musicplayer.spanova.spmusicplayer.sevice.MusicService;
@@ -23,7 +24,6 @@ public class MusicEventsReceiverHelper {
     TaskListener onArtClicked;
     TaskListener onUpdateAll;
     TaskListener onStop;
-    boolean binded = false;
 
     public static MusicEventsReceiverHelper getInstance() {
         return musicEventsReceiverHelper;
@@ -66,46 +66,22 @@ public class MusicEventsReceiverHelper {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
-
-            if(musicSrv==null) {
+            MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
+            if (musicSrv == null) {
                 musicSrv = binder.getService();
-                if (Constants.PLAY_PAUSE_ACTION.equals(action)) {
-                    if (musicSrv.isPlaying()) {
-                        musicSrv.pause();
-                    } else {
-                        musicSrv.start();
-                    }
-                    onPlayPause.run(context, musicSrv);
-                } else if (Constants.NEXT_ACTION.equals(action)) {
-                    musicSrv.playNext();
-                    onNext.run(context, musicSrv);
-                } else if (Constants.PREV_ACTION.equals(action)) {
-                    musicSrv.playPrev();
-                    onPrev.run(context, musicSrv);
-                } else if (Constants.SHUFFLE_ACTION.equals(action)) {
-                    musicSrv.setShuffle();
-                    onShuffle.run(context, musicSrv);
-                } else if (Constants.REPEAT_ACTION.equals(action)) {
-                    musicSrv.setRepeat();
-                    onRepeat.run(context, musicSrv);
-                } else if (Constants.ART_CLICKED_ACTION.equals(action)) {
-                    onArtClicked.run(context, musicSrv);
-                } else if (Constants.UPDATE_ALL_ACTION.equals(action)) {
-                    onUpdateAll.run(context, musicSrv);
-                } else if (Constants.STOP_ACTION.equals(action)) {
-                    onUpdateAll.run(context, musicSrv);
-                } else {
-                    new Error("WE ARE FUCKED! NOT SUCK ACTION");
-                }
-            }
 
+//                musicSrv.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
+//                    @Override
+//                    public void onCompletion(MediaPlayer mp) {
+//                        onPlayPause.run(context, musicSrv);
+//                    }
+//                });
+                pickAction();
+            }
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-            binded = false;
-        }
+        public void onServiceDisconnected(ComponentName name) { }
     };
 
     public void onReceive(Context context, String action) {
@@ -115,35 +91,42 @@ public class MusicEventsReceiverHelper {
         Intent play = new Intent(context, MusicService.class);
         context.getApplicationContext().bindService(play, musicConnection,
                 Context.BIND_AUTO_CREATE);
-        if(musicSrv != null) {
-            if (Constants.PLAY_PAUSE_ACTION.equals(action)) {
-                if (musicSrv.isPlaying()) {
-                    musicSrv.pause();
-                } else {
-                    musicSrv.start();
-                }
-                onPlayPause.run(context, musicSrv);
-            } else if (Constants.NEXT_ACTION.equals(action)) {
-                musicSrv.playNext();
-                onNext.run(context, musicSrv);
-            } else if (Constants.PREV_ACTION.equals(action)) {
-                musicSrv.playPrev();
-                onPrev.run(context, musicSrv);
-            } else if (Constants.SHUFFLE_ACTION.equals(action)) {
-                musicSrv.setShuffle();
-                onShuffle.run(context, musicSrv);
-            } else if (Constants.REPEAT_ACTION.equals(action)) {
-                musicSrv.setRepeat();
-                onRepeat.run(context, musicSrv);
-            } else if (Constants.ART_CLICKED_ACTION.equals(action)) {
-                onArtClicked.run(context, musicSrv);
-            } else if (Constants.UPDATE_ALL_ACTION.equals(action)) {
-                onUpdateAll.run(context, musicSrv);
-            } else if (Constants.STOP_ACTION.equals(action)) {
-                onUpdateAll.run(context, musicSrv);
+        if (musicSrv != null) {
+            pickAction();
+        }
+    }
+
+    private void pickAction() {
+        if (Constants.PLAY_PAUSE_ACTION.equals(action)) {
+            if (musicSrv.isPlaying()) {
+                musicSrv.pause();
             } else {
-                new Error("WE ARE FUCKED! NOT SUCK ACTION");
+                musicSrv.start();
             }
+            if (onPlayPause != null) onPlayPause.run(context, musicSrv);
+        } else if (Constants.NEXT_ACTION.equals(action)) {
+            musicSrv.playNext();
+            if (onNext != null) onNext.run(context, musicSrv);
+        } else if (Constants.PREV_ACTION.equals(action)) {
+            musicSrv.playPrev();
+            if (onPrev != null) onPrev.run(context, musicSrv);
+        } else if (Constants.SHUFFLE_ACTION.equals(action)) {
+            musicSrv.setShuffle();
+            if (onShuffle != null) onShuffle.run(context, musicSrv);
+        } else if (Constants.REPEAT_ACTION.equals(action)) {
+            musicSrv.setRepeat();
+            if (onRepeat != null) onRepeat.run(context, musicSrv);
+        } else if (Constants.ART_CLICKED_ACTION.equals(action)) {
+            //TBD add change art functionality
+            if (onArtClicked != null) onArtClicked.run(context, musicSrv);
+        } else if (Constants.STOP_ACTION.equals(action)) {
+            musicSrv.stop();
+            if (onStop != null) onStop.run(context, musicSrv);
+        } else if (Constants.UPDATE_ALL_ACTION.equals(action)) {
+            //currently only for widget
+            if (onUpdateAll != null) onUpdateAll.run(context, musicSrv);
+        } else {
+            new Error("WE ARE FUCKED! NOT SUCK ACTION");
         }
     }
 

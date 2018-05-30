@@ -73,6 +73,7 @@ public class SongsFragment extends Fragment {
         }
         if( playIntent == null ){
             playIntent = new Intent(context, MusicService.class);
+            playIntent.setAction("A");
             activity.bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             activity.startService(playIntent);
         }

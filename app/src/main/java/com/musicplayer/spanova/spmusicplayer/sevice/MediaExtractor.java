@@ -21,13 +21,7 @@ public class MediaExtractor {
     int sortIndex = 0;
     Context context;
 
-    MediaExtractor (String search, int sortIndex, Context context) {
-        this.search = search;
-        this.sortIndex = sortIndex;
-        this.context = context;
-    }
-
-    MediaExtractor (Context context) {
+    MediaExtractor(Context context) {
         this.context = context;
     }
 
@@ -49,27 +43,41 @@ public class MediaExtractor {
 
 
     public List<Song> GetAllMediaMp3Files() {
-        List<Song> result = new ArrayList<Song>();
-        contentResolver = context.getContentResolver();
-
         SortOption sortOrder = Constants.sortOptions[sortIndex];
         String searchCriteria = null;
-        String [] selectionArgs = null;
+        String[] selectionArgs = null;
 
-        if(search != null) {
+        if (search != null) {
             searchCriteria = MediaStore.Audio.Media.TITLE + " LIKE ? OR " +
                     MediaStore.Audio.Media.ARTIST + " LIKE ? OR " +
                     MediaStore.Audio.Media.ARTIST + " LIKE ? ";
-            selectionArgs = new String[]{ "%" + search + "%"};
+            selectionArgs = new String[]{"%" + search + "%"};
         }
 
+        return getSongsByCriteria(searchCriteria,selectionArgs,sortOrder.getOrderString());
+    }
 
+    public Song getSongByID(int id) {
+        String searchCriteria = null;
+        String[] selectionArgs = null;
+
+        if (id > -1) {
+            searchCriteria = MediaStore.Audio.Media._ID + " LIKE ?";
+            selectionArgs = new String[]{"%" + id + "%"};
+        }
+
+        return getSongsByCriteria(searchCriteria,selectionArgs,null).get(0);
+    }
+
+    private List<Song> getSongsByCriteria (String searchCriteria, String[] selectionArgs,String sortOrder) {
+        List<Song> result = new ArrayList<Song>();
+        contentResolver = context.getContentResolver();
         cursor = contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 null,
                 searchCriteria,
                 selectionArgs,
-                sortOrder.getOrderString()
+                sortOrder
         );
 
         if (cursor == null) {
@@ -96,7 +104,7 @@ public class MediaExtractor {
                 int songYear = cursor.getInt(year);
                 String songUri = cursor.getString(url);
 
-                Song current =  new Song(id,
+                Song current = new Song(id,
                         songTitle,
                         songArtist,
                         "",
@@ -104,65 +112,6 @@ public class MediaExtractor {
                         songYear,
                         songUri);
                 result.add(current);
-
-            } while (cursor.moveToNext());
-        }
-        return result;
-    }
-
-    public Song getMediaFileByID(int id) {
-        Song result = null;
-        contentResolver = context.getContentResolver();
-
-        SortOption sortOrder = Constants.sortOptions[sortIndex];
-        String searchCriteria = null;
-        String [] selectionArgs = null;
-
-        if(id > -1) {
-            searchCriteria = MediaStore.Audio.Media._ID + " LIKE ?";
-            selectionArgs = new String[]{ "%" + id + "%"};
-        }
-
-
-        cursor = contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                null,
-                searchCriteria,
-                selectionArgs,
-                sortOrder.getOrderString()
-        );
-
-        if (cursor == null) {
-
-            Toast.makeText(context, "Something Went Wrong.", Toast.LENGTH_LONG);
-
-        } else if (!cursor.moveToFirst()) {
-
-            Toast.makeText(context, "No Music Found on SD Card.", Toast.LENGTH_LONG);
-
-        } else {
-
-            int title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            int artist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int album = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
-            int year = cursor.getColumnIndex(MediaStore.Audio.Media.YEAR);
-            int url = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-            id = cursor.getColumnIndex(MediaStore.Audio.Media._ID);
-
-            do {
-                String songTitle = cursor.getString(title);
-                String songArtist = cursor.getString(artist);
-                String songAlbum = cursor.getString(album);
-                int songYear = cursor.getInt(year);
-                String songUri = cursor.getString(url);
-
-                result =  new Song(id,
-                        songTitle,
-                        songArtist,
-                        "",
-                        songAlbum,
-                        songYear,
-                        songUri);
 
             } while (cursor.moveToNext());
         }

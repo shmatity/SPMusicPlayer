@@ -22,6 +22,8 @@ import android.widget.Toast;
 import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
 import com.musicplayer.spanova.spmusicplayer.sevice.MusicService;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
+import com.musicplayer.spanova.spmusicplayer.utils.Constants;
+import com.musicplayer.spanova.spmusicplayer.utils.Utils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +33,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
     Intent playIntent;
     boolean musicBound=false;
     int mCurrentBufferPercentage;
+    boolean shouldContinue = false;
     Handler handler;
     Runnable runnable;
     Context context;
@@ -65,19 +68,11 @@ public class MusicPlayerActivity extends AppCompatActivity {
             });
 
             musicSrv.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
-
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     managePlayPauseIcon(playPauseButton);
                 }
             });
-
-//            musicSrv.setOnNextListener(new OnNextListener() {
-//                @Override
-//                public void OnNext() {
-//                    initializeSong();
-//                }
-//            });
 
             setContentView(R.layout.activity_music_player);
 
@@ -87,10 +82,8 @@ public class MusicPlayerActivity extends AppCompatActivity {
             currentSec = (TextView) findViewById(R.id.currentSec);
             maxSec = (TextView) findViewById(R.id.maxSec);
 
-            song = musicSrv.getSong();
-
             initializeSong();
-            if(!musicSrv.isPlaying()) musicSrv.playSong();
+            if(!shouldContinue) musicSrv.playSong();
         }
 
         @Override
@@ -103,12 +96,12 @@ public class MusicPlayerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getIntent().getExtras() != null) shouldContinue = getIntent().getExtras().getBoolean(Constants.shouldContinueExtra);
         context = getApplicationContext();
         mCurrentBufferPercentage = 0;
         handler = new Handler();
         if( playIntent == null ){
             playIntent = new Intent(context, MusicService.class);
-            //startService(playIntent);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
         }
     }
@@ -116,11 +109,6 @@ public class MusicPlayerActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-//        if( playIntent == null ){
-//            playIntent = new Intent(context, MusicService.class);
-//            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-//            startService(playIntent);
-//        }
     }
 
     @Override
@@ -144,14 +132,10 @@ public class MusicPlayerActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
+        public void onStartTrackingTouch(SeekBar seekBar) { }
 
         @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-
-        }
+        public void onStopTrackingTouch(SeekBar seekBar) { }
     };
 
     View.OnClickListener playPauseListener = new View.OnClickListener(){
@@ -159,15 +143,12 @@ public class MusicPlayerActivity extends AppCompatActivity {
         public void onClick(View v){
             if(musicSrv.isPlaying()) {
                 musicSrv.pause();
-                //((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_play_black));
             } else if(musicSrv.isPaused()){
                 musicSrv.start();
             } else {
                 musicSrv.playSong();
-                //((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_black));
             }
             managePlayPauseIcon(playPauseButton);
-//            showNotification();
         }
     };
 
@@ -199,7 +180,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             musicSrv.setRepeat();
-            ((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), musicSrv.getRepeatImage()));
+            ((ImageButton) v).setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), Utils.getRepeatIcon(musicSrv.getRepeat())));
         }
     };
 
@@ -209,6 +190,13 @@ public class MusicPlayerActivity extends AppCompatActivity {
             mCurrentBufferPercentage = percent;
         }
     };
+
+    public void initializeSong() {
+        song = musicSrv.getSong();
+        initializControls();
+        initializeSongInfo();
+        initializeSeekBar();
+    }
 
     protected void initializControls() {
         shuffleButton = (ImageButton) findViewById(R.id.shuffle);
@@ -220,7 +208,6 @@ public class MusicPlayerActivity extends AppCompatActivity {
         prevButton.setOnClickListener(prevListener);
 
         playPauseButton = (ImageButton) findViewById(R.id.playPause);
-//        managePlayPauseIcon(playPauseButton);
         playPauseButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_black));
         playPauseButton.setOnClickListener(playPauseListener);
 
@@ -229,7 +216,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
         nextButton.setOnClickListener(nextListener);
 
         repeatButton = (ImageButton) findViewById(R.id.repeat);
-        repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), musicSrv.getRepeatImage()));
+        repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), Utils.getRepeatIcon(musicSrv.getRepeat())));
         repeatButton.setOnClickListener(repeatListener);
     }
 
@@ -281,34 +268,6 @@ public class MusicPlayerActivity extends AppCompatActivity {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(pass))
         );
         currentSec.setText(passString);
-    }
-
-//    public void showNotification() {
-//        Thread thread = new Thread() {
-//            @Override
-//            public void run() {
-//                try {
-//                    CustomNotification.getInstance().updateNotification(context,
-//                            song.getArtist(),
-//                            song.getTitle(),
-//                            R.drawable.ic_format_list_bulleted_black_24dp,
-//                            song.getImageFromSong(context),
-//                            musicSrv.isPlaying());
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        };
-//
-//        thread.start();
-//    }
-
-    public void initializeSong() {
-        song = musicSrv.getSong();
-        initializControls();
-        initializeSongInfo();
-//        showNotification();
-        initializeSeekBar();
     }
 
     private void manageShuffleIcon(ImageButton v) {

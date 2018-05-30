@@ -34,6 +34,7 @@ public class CustomNotification extends Notification {
         this.mNotificationManager = (NotificationManager) ctx.getSystemService(ns);
 
         Intent intent = new Intent(ctx, MusicPlayerActivity.class);
+        intent.putExtra(Constants.shouldContinueExtra, true);
         PendingIntent pIntent = PendingIntent.getActivity(ctx, (int)System.currentTimeMillis(), intent, 0);
 
         Intent deleteIntent = new Intent(ctx, NotificationReceiver.class);
