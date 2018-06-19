@@ -17,5 +17,9 @@
         android:id="@+id/navigation_album"
         android:icon="@android:drawable/ic_menu_save"
         android:title="@string/albums" />
+    <item
+        android:id="@+id/navigation_folder"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/folders" />
 
 </menu>

@@ -1,7 +1,6 @@
 package com.musicplayer.spanova.spmusicplayer.sevice;
 
 import android.app.Service;
-import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
@@ -15,11 +14,10 @@ import android.widget.Toast;
 
 //import com.musicplayer.spanova.spmusicplayer.OnNextListener;
 import com.musicplayer.spanova.spmusicplayer.R;
+import com.musicplayer.spanova.spmusicplayer.artist.Artist;
 import com.musicplayer.spanova.spmusicplayer.notification.CustomNotification;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
-import com.musicplayer.spanova.spmusicplayer.utils.Utils;
-import com.musicplayer.spanova.spmusicplayer.widget.WidgetReceiver;
 
 import java.util.List;
 import java.util.Random;
@@ -38,8 +36,8 @@ public class MusicService extends Service implements
     int repeat = Constants.REPEAT_NONE;
     Random rand;
     MediaPlayer player;
-    int currentSongIndex = 0;
-    private List<Song> ListElementsArrayList;
+    int currentElementIndex = 0;
+    private List<?> ListElementsArrayList;
     final IBinder musicBind = new MusicBinder();
     MediaPlayer.OnPreparedListener onPreparedListener;
     MediaPlayer.OnCompletionListener onCompletionListener = null;
@@ -47,7 +45,9 @@ public class MusicService extends Service implements
 
     @Override
     public IBinder onBind(Intent arg0) {
-        setSongList(me.GetAllMediaMp3Files());
+
+
+        setElementList(me.GetAllMediaMp3Files());
         return musicBind;
     }
 
@@ -136,25 +136,33 @@ public class MusicService extends Service implements
         player.setOnErrorListener(this);
     }
 
-    public List<Song> getSongList() {
+    public List<?> getElementList() {
         return ListElementsArrayList;
     }
 
-    public void setSongList(List<Song> listElementsArrayList) {
+
+    public List<?> getElementList(Constants.ListTypes type) {
+        setElementList(me.GetAllMediaMp3Files(type));
+        return ListElementsArrayList;
+    }
+
+
+    public void setElementList(List<?> listElementsArrayList) {
         ListElementsArrayList = listElementsArrayList;
     }
+
 
     public void setSortOption(int sortOption) {
         if (me.getSortIndex() != sortOption) {
             me.setSortIndex(sortOption);
-            setSongList(me.GetAllMediaMp3Files());
+            setElementList(me.GetAllMediaMp3Files());
         }
     }
 
     public void setSearch(String search) {
         if (!me.getSearch().equals(search)) {
             me.setSearch(search);
-            setSongList(me.GetAllMediaMp3Files());
+            setElementList(me.GetAllMediaMp3Files());
         }
     }
 
@@ -184,15 +192,19 @@ public class MusicService extends Service implements
     }
 
     public Song getSong() {
-        return this.ListElementsArrayList.get(currentSongIndex);
+        return (Song)this.ListElementsArrayList.get(currentElementIndex);
     }
 
-    public int getCurrentSongIndex() {
-        return currentSongIndex;
+    public Artist getArtist() {
+        return (Artist)this.ListElementsArrayList.get(currentElementIndex);
     }
 
-    public void setCurrentSongIndex(int currentSongIndex) {
-        this.currentSongIndex = currentSongIndex;
+    public int getCurrentElementIndex() {
+        return currentElementIndex;
+    }
+
+    public void setCurrentElementIndex(int currentElementIndex) {
+        this.currentElementIndex = currentElementIndex;
     }
 
     public void playSong() {
@@ -249,13 +261,13 @@ public class MusicService extends Service implements
             return;
         }
         if (shuffle) {
-            currentIndex = rand.nextInt(getSongList().size());
+            currentIndex = rand.nextInt(getElementList().size());
         } else {
-            if (getCurrentSongIndex() > 0) {
-                currentIndex = getCurrentSongIndex() - 1;
+            if (getCurrentElementIndex() > 0) {
+                currentIndex = getCurrentElementIndex() - 1;
             }
         }
-        setCurrentSongIndex(currentIndex);
+        setCurrentElementIndex(currentIndex);
         playSong();
 
     }
@@ -267,13 +279,13 @@ public class MusicService extends Service implements
             return;
         }
         if (shuffle) {
-            currentIndex = rand.nextInt(getSongList().size());
+            currentIndex = rand.nextInt(getElementList().size());
         } else {
-            if (getSongList().size() > getCurrentSongIndex()) {
-                currentIndex = getCurrentSongIndex() + 1;
+            if (getElementList().size() > getCurrentElementIndex()) {
+                currentIndex = getCurrentElementIndex() + 1;
             }
         }
-        setCurrentSongIndex(currentIndex);
+        setCurrentElementIndex(currentIndex);
         playSong();
     }
 

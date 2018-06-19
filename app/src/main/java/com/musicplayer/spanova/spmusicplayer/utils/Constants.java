@@ -52,4 +52,21 @@ public class Constants {
             new SortOption(4, "Older", MediaStore.Audio.Media.DATE_ADDED + " ASC"),
 
     };
+
+    public enum ListTypes {
+        SONG(0),
+        ARTIST(1),
+        ALBUM(2),
+        FOLDER(3);
+
+        private int index;
+
+        ListTypes(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return this.index;
+        }
+    }
 }

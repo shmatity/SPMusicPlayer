@@ -2,31 +2,22 @@ package com.musicplayer.spanova.spmusicplayer.song;
 
 import android.app.Activity;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.musicplayer.spanova.spmusicplayer.MusicPlayerActivity;
 import com.musicplayer.spanova.spmusicplayer.sevice.MusicService;
 import com.musicplayer.spanova.spmusicplayer.R;
-import com.musicplayer.spanova.spmusicplayer.utils.Constants;
-import com.musicplayer.spanova.spmusicplayer.utils.SortOption;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SongsFragment extends Fragment {
@@ -48,7 +39,7 @@ public class SongsFragment extends Fragment {
             musicSrv = binder.getService();
             musicSrv.setSortOption(sortIndex);
             musicSrv.setSearch(search);
-            ListElementsArrayList = musicSrv.getSongList();
+            ListElementsArrayList = (List<Song>) musicSrv.getElementList();
             SongAdapter adapter = new SongAdapter(activity, ListElementsArrayList);
             listView.setAdapter(adapter);
         }
@@ -93,7 +84,7 @@ public class SongsFragment extends Fragment {
     }
 
     public void songPicked(int position) {
-        musicSrv.setCurrentSongIndex(position);
+        musicSrv.setCurrentElementIndex(position);
         Intent myIntent = new Intent(context, MusicPlayerActivity.class);
         context.startActivity(myIntent);
     }

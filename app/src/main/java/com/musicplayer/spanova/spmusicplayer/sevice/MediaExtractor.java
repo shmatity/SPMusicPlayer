@@ -7,11 +7,15 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
+import com.musicplayer.spanova.spmusicplayer.album.Album;
+import com.musicplayer.spanova.spmusicplayer.artist.Artist;
+import com.musicplayer.spanova.spmusicplayer.folder.Folder;
 import com.musicplayer.spanova.spmusicplayer.song.Song;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
 import com.musicplayer.spanova.spmusicplayer.utils.SortOption;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MediaExtractor {
@@ -42,7 +46,7 @@ public class MediaExtractor {
     }
 
 
-    public List<Song> GetAllMediaMp3Files() {
+    public List<?> GetAllMediaMp3Files(Constants.ListTypes type) {
         SortOption sortOrder = Constants.sortOptions[sortIndex];
         String searchCriteria = null;
         String[] selectionArgs = null;
@@ -54,7 +58,23 @@ public class MediaExtractor {
             selectionArgs = new String[]{"%" + search + "%"};
         }
 
-        return getSongsByCriteria(searchCriteria,selectionArgs,sortOrder.getOrderString());
+        switch (type) {
+            case SONG:
+                return getSongsByCriteria(searchCriteria,selectionArgs,sortOrder.getOrderString());
+            case ARTIST:
+                return getArtistByCriteria(searchCriteria,selectionArgs,sortOrder.getOrderString());
+            case ALBUM:
+                return getAlbumByCriteria(searchCriteria,selectionArgs,sortOrder.getOrderString());
+            case FOLDER:
+                return getFolderByCriteria(searchCriteria,selectionArgs,sortOrder.getOrderString());
+            default:
+                return getSongsByCriteria(searchCriteria,selectionArgs,sortOrder.getOrderString());
+        }
+
+    }
+
+    public List<?> GetAllMediaMp3Files() {
+       return GetAllMediaMp3Files(Constants.ListTypes.SONG);
     }
 
     public Song getSongByID(int id) {
@@ -114,6 +134,66 @@ public class MediaExtractor {
                 result.add(current);
 
             } while (cursor.moveToNext());
+        }
+        return result;
+    }
+
+    private List<Artist> getArtistByCriteria (String searchCriteria, String[] selectionArgs, String sortOrder) {
+        List<Artist> result = new ArrayList<Artist>();
+        HashMap<String, Artist> map = new HashMap();
+        List<Song> songs = getSongsByCriteria("", null, "artist asc");
+        String artist = songs.get(0).getArtist();
+
+        List<Song> currentArtistSongList = new ArrayList<Song>();
+        for (int i = 0; i < songs.size(); i++) {
+            if (songs.get(i).getArtist().equals(artist)) {
+                currentArtistSongList.add(songs.get(i));
+            } else {
+                result.add(new Artist(artist, currentArtistSongList));
+                artist = songs.get(i).getArtist();
+                currentArtistSongList = new ArrayList<Song>();
+                currentArtistSongList.add(songs.get(i));
+            }
+        }
+        return result;
+    }
+
+    private List<Album> getAlbumByCriteria (String searchCriteria, String[] selectionArgs, String sortOrder) {
+        List<Album> result = new ArrayList<Album>();
+        List<Song> songs = getSongsByCriteria("", null, "album asc");
+        String album = songs.get(0).getAlbum();
+
+        List<Song> currentArtistSongList = new ArrayList<Song>();
+        for (int i = 0; i < songs.size(); i++) {
+            if (songs.get(i).getAlbum().equals(album)) {
+                currentArtistSongList.add(songs.get(i));
+            } else {
+                result.add(new Album(album, currentArtistSongList));
+                album = songs.get(i).getAlbum();
+                currentArtistSongList = new ArrayList<Song>();
+                currentArtistSongList.add(songs.get(i));
+            }
+        }
+        return result;
+    }
+
+    private List<Folder> getFolderByCriteria (String searchCriteria, String[] selectionArgs, String sortOrder) {
+        List<Folder> result = new ArrayList<Folder>();
+        List<Song> songs = getSongsByCriteria("", null, "_data asc");
+        String temp = songs.get(0).getUri();
+        String uri = temp.substring(0, temp.lastIndexOf('/'));
+
+        List<Song> currentArtistSongList = new ArrayList<Song>();
+        for (int i = 0; i < songs.size(); i++) {
+
+            if (songs.get(i).getUri().substring(0, songs.get(i).getUri().lastIndexOf('/')).equals(uri)) {
+                currentArtistSongList.add(songs.get(i));
+            } else {
+                result.add(new Folder(uri, uri, currentArtistSongList));
+                uri = songs.get(i).getAlbum();
+                currentArtistSongList = new ArrayList<Song>();
+                currentArtistSongList.add(songs.get(i));
+            }
         }
         return result;
     }

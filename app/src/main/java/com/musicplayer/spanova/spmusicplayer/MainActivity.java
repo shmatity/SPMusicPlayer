@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.musicplayer.spanova.spmusicplayer.album.AlbumFragment;
 import com.musicplayer.spanova.spmusicplayer.artist.ArtistFragment;
+import com.musicplayer.spanova.spmusicplayer.folder.FolderFragment;
 import com.musicplayer.spanova.spmusicplayer.song.SongsFragment;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
 import com.musicplayer.spanova.spmusicplayer.utils.SortOption;
@@ -92,10 +93,28 @@ public class MainActivity extends AppCompatActivity {
             ft.replace(R.id.fragment_view, myObj);
             ft.commit();
         } else if (currentItem == R.id.navigation_artist) {
-            ft.replace(R.id.fragment_view, new ArtistFragment());
+            Bundle bundle = new Bundle();
+            bundle.putString("search", searchedText);
+            bundle.putInt("sort", sortOption);
+            ArtistFragment myObj = new ArtistFragment();
+            myObj.setArguments(bundle);
+            ft.replace(R.id.fragment_view, myObj);
+            ft.commit();
+        } else if (currentItem == R.id.navigation_album) {
+            Bundle bundle = new Bundle();
+            bundle.putString("search", searchedText);
+            bundle.putInt("sort", sortOption);
+            AlbumFragment myObj = new AlbumFragment();
+            myObj.setArguments(bundle);
+            ft.replace(R.id.fragment_view, myObj);
             ft.commit();
         } else {
-            ft.replace(R.id.fragment_view, new AlbumFragment());
+            Bundle bundle = new Bundle();
+            bundle.putString("search", searchedText);
+            bundle.putInt("sort", sortOption);
+            FolderFragment myObj = new FolderFragment();
+            myObj.setArguments(bundle);
+            ft.replace(R.id.fragment_view, myObj);
             ft.commit();
         }
     }

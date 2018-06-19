@@ -1,4 +1,5 @@
-package com.musicplayer.spanova.spmusicplayer.album;
+package com.musicplayer.spanova.spmusicplayer.folder;
+
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -33,11 +34,11 @@ import com.musicplayer.spanova.spmusicplayer.utils.SortOption;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlbumFragment extends Fragment {
+public class FolderFragment extends Fragment {
 
     Activity activity;
     ListView listView;
-    List<Album> ListElementsArrayList;
+    List<Folder> ListElementsArrayList;
     String search = "*";
     int sortIndex = 0;
     private MusicService musicSrv;
@@ -52,8 +53,8 @@ public class AlbumFragment extends Fragment {
             musicSrv = binder.getService();
             musicSrv.setSortOption(sortIndex);
             musicSrv.setSearch(search);
-            ListElementsArrayList = (List<Album>) musicSrv.getElementList(Constants.ListTypes.ALBUM);
-            AlbumAdapter adapter = new AlbumAdapter(activity, ListElementsArrayList);
+            ListElementsArrayList = (List<Folder>) musicSrv.getElementList(Constants.ListTypes.FOLDER);
+            FolderAdapter adapter = new FolderAdapter(activity, ListElementsArrayList);
             listView.setAdapter(adapter);
         }
 
