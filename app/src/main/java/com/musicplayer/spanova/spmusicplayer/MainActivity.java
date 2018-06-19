@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.musicplayer.spanova.spmusicplayer.album.AlbumFragment;
 import com.musicplayer.spanova.spmusicplayer.artist.ArtistFragment;
+import com.musicplayer.spanova.spmusicplayer.controller.MusicController;
 import com.musicplayer.spanova.spmusicplayer.song.SongsFragment;
 import com.musicplayer.spanova.spmusicplayer.utils.Constants;
 import com.musicplayer.spanova.spmusicplayer.utils.SortOption;
@@ -39,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
+    static boolean active = false;
     Context context;
     String searchedText = "";
     int sortOption = 0;
@@ -51,10 +52,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             Spinner sortSpinner = (Spinner) findViewById(R.id.spinner);
+
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, Utils.generateSortSpinnerOptions());
             adapter.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
-            sortSpinner.setAdapter(adapter);
 
+            sortSpinner.setAdapter(adapter);
+            sortSpinner.setSelection(sortOption, false);
             sortSpinner.setOnItemSelectedListener(onSpinnerItemSelected);
 
             currentItem = item.getItemId();
@@ -66,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        context = getApplicationContext();
         setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
@@ -75,12 +78,26 @@ public class MainActivity extends AppCompatActivity {
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        context = getApplicationContext();
+
         AndroidRuntimePermission();
         ((BottomNavigationView) findViewById(R.id.navigation)).setSelectedItemId(R.id.navigation_songs);
-
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        active = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        active = false;
+    }
+
+    public static boolean isActive () {
+        return active;
+    }
     public void refresh() {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (currentItem == R.id.navigation_songs) {

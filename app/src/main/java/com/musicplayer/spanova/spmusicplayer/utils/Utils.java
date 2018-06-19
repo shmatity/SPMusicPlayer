@@ -60,10 +60,10 @@ public class Utils {
         return listResult.toArray(result);
     }
 
-    public static String prepareData(int id, boolean shuffle, int repeat) {
+    public static String prepareData(String uri, boolean shuffle, int repeat) {
         JSONObject json = new JSONObject();
         try {
-            json.put("id", id);
+            json.put("uri", uri);
             json.put("shuffle", shuffle);
             json.put("repeat",repeat);
 
@@ -73,16 +73,16 @@ public class Utils {
         return json.toString();
     }
 
-    public static int unpackID(String data) {
+    public static String unpackUri(String data) {
         JSONObject jObject = null;
-        int id = 0;
+        String uri = "";
         try {
             jObject = new JSONObject(data);
-            id = jObject.getInt("id");
+            uri = jObject.getString("uri");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return id;
+        return uri;
     }
 
     public static int unpackRepeat(String data) {

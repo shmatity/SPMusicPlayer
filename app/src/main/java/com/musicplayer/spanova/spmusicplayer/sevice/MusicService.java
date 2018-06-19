@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.SurfaceHolder;
 import android.widget.Toast;
 
 //import com.musicplayer.spanova.spmusicplayer.OnNextListener;
@@ -47,12 +48,17 @@ public class MusicService extends Service implements
 
     @Override
     public IBinder onBind(Intent arg0) {
+        String data = Utils.readFromFile(getApplicationContext());
+        me.getSongByUri(Utils.unpackUri(data));
+        shuffle = Utils.unpackShuffle(data);
+        repeat = Utils.unpackRepeat(data);
         setSongList(me.GetAllMediaMp3Files());
         return musicBind;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
+        Utils.writeToFile(Utils.prepareData(getSong().getUri(), shuffle, repeat), getApplicationContext());
         return true;
     }
 
@@ -113,7 +119,7 @@ public class MusicService extends Service implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Utils.writeToFile(Utils.prepareData(getSong().getId(), shuffle, repeat), getApplicationContext());
+        Utils.writeToFile(Utils.prepareData(getSong().getUri(), shuffle, repeat), getApplicationContext());
         player.stop();
         player.release();
         player = null;
@@ -275,6 +281,14 @@ public class MusicService extends Service implements
         }
         setCurrentSongIndex(currentIndex);
         playSong();
+    }
+
+    public void setDisplay(SurfaceHolder sf){
+        player.setDisplay(sf);
+    }
+
+    public void prepareAsync() {
+        player.prepareAsync();
     }
 
     public void showNotification() {

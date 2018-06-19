@@ -57,13 +57,13 @@ public class MediaExtractor {
         return getSongsByCriteria(searchCriteria,selectionArgs,sortOrder.getOrderString());
     }
 
-    public Song getSongByID(int id) {
+    public Song getSongByUri(String url) {
         String searchCriteria = null;
         String[] selectionArgs = null;
 
-        if (id > -1) {
-            searchCriteria = MediaStore.Audio.Media._ID + " LIKE ?";
-            selectionArgs = new String[]{"%" + id + "%"};
+        if (url != "") {
+            searchCriteria = MediaStore.Audio.Media.DATA + " LIKE ?";
+            selectionArgs = new String[]{"%" + url + "%"};
         }
 
         return getSongsByCriteria(searchCriteria,selectionArgs,null).get(0);
